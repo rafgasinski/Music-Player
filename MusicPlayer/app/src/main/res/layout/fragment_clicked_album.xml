@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".ui.albums.ClickedAlbumFragment">
+
+    <data>
+
+        <variable
+            name="album"
+            type="com.example.musicplayer.music.Album" />
+    </data>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical" >
+
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
+            style="@style/Toolbar.Style.NavIconBack"
+            app:layout_scrollFlags="scroll|enterAlways"
+            app:theme="@style/Toolbar.Style.NavIconBack"
+            app:menu="@menu/menu_clicked_album_artist"
+            app:contentInsetStartWithNavigation="0dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" >
+
+            <TextView
+                android:id="@+id/toolbar_title"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="@{album.name}"
+                android:textColor="@color/white"
+                android:gravity="center"
+                android:textSize="16sp"
+                android:paddingStart="2dp"
+                android:paddingEnd="2dp"
+                android:textStyle="bold"
+                android:focusable="true"
+                android:focusableInTouchMode="true"
+                android:singleLine="true"
+                tools:text="Inspination" />
+
+        </androidx.appcompat.widget.Toolbar>
+
+        <androidx.core.widget.NestedScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" >
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/constraintLayout"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@color/background" >
+
+                <View
+                    android:id="@+id/gradient_view"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:background="@color/background"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintBottom_toTopOf="@id/clicked_album_tracks_recycler_view"
+                    app:layout_constraintEnd_toEndOf="parent" />
+
+                <ImageView
+                    android:id="@+id/album_cover"
+                    android:layout_width="165dp"
+                    android:layout_height="165dp"
+                    android:clickable="true"
+                    android:contentDescription="@{@string/description_album_cover(album.name)"
+                    android:focusable="true"
+                    android:scaleType="fitCenter"
+                    app:albumArtAndColor="@{album}"
+                    android:layout_marginTop="70dp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:src="@drawable/album_placeholder" />
+
+                <TextView
+                    android:id="@+id/album_name"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:text="@{album.name}"
+                    android:textAlignment="center"
+                    android:textColor="@color/white"
+                    android:textSize="22sp"
+                    android:textStyle="bold"
+                    android:layout_marginTop="15dp"
+                    android:layout_marginStart="5dp"
+                    android:layout_marginEnd="5dp"
+                    app:layout_constraintTop_toBottomOf="@+id/album_cover"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    tools:text="Inspination" />
+
+                <TextView
+                    android:id="@+id/album_artists"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:textAlignment="center"
+                    android:textColor="@color/text"
+                    android:textSize="14sp"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginStart="5dp"
+                    android:layout_marginEnd="5dp"
+                    app:layout_constraintTop_toBottomOf="@+id/album_name"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    tools:text="Album by Kasia Moś" />
+
+                <androidx.appcompat.widget.AppCompatButton
+                    android:id="@+id/shuffle_album_button"
+                    android:layout_width="0dp"
+                    android:layout_height="45dp"
+                    android:background="@drawable/round_button"
+                    android:text="@string/shuffle"
+                    android:textColor="@color/white"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:layout_marginTop="22dp"
+                    app:layout_constraintTop_toBottomOf="@+id/album_artists"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintWidth_percent="0.5" />
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/clicked_album_tracks_recycler_view"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingTop="20dp"
+                    android:paddingBottom="8dp"
+                    android:clipToPadding="false"
+                    app:layout_constraintTop_toBottomOf="@id/shuffle_album_button"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                    tools:listitem="@layout/item_album_track"
+                    tools:layout_height="400dp" />
+
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+        </androidx.core.widget.NestedScrollView>
+
+    </LinearLayout>
+
+</layout>

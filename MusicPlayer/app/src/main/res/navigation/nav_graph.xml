@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/tracksFragment">
+    <fragment
+        android:id="@+id/tracksFragment"
+        android:name="com.example.musicplayer.ui.tracks.TracksFragment"
+        android:label="All Tracks"
+        tools:layout="@layout/fragment_tracks" />
+    <fragment
+        android:id="@+id/albumsFragment"
+        android:name="com.example.musicplayer.ui.albums.AlbumsFragment"
+        android:label="Albums"
+        tools:layout="@layout/fragment_albums" >
+        <action
+            android:id="@+id/action_albumsFragment_to_fragmentClickedAlbum"
+            app:destination="@id/fragmentClickedAlbum"
+            app:enterAnim="@anim/fade_in_navigation"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
+    </fragment>
+    <fragment
+        android:id="@+id/fragmentClickedAlbum"
+        android:name="com.example.musicplayer.ui.albums.ClickedAlbumFragment"
+        android:label="ClickedAlbum" >
+        <argument
+            android:name="albumId"
+            app:argType="long" />
+    </fragment>
+    <fragment
+        android:id="@+id/clickedArtistFragment"
+        android:name="com.example.musicplayer.ui.artists.ClickedArtistFragment"
+        android:label="fragment_clicked_artist"
+        tools:layout="@layout/fragment_clicked_artist" >
+        <argument
+            android:name="artistId"
+            app:argType="long" />
+    </fragment>
+    <fragment
+        android:id="@+id/artistsFragment"
+        android:name="com.example.musicplayer.ui.artists.ArtistsFragment"
+        android:label="ArtistsFragment" >
+        <action
+            android:id="@+id/action_artistsFragment_to_clickedArtistFragment"
+            app:destination="@id/clickedArtistFragment"
+            app:enterAnim="@anim/fade_in_navigation"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+            app:popExitAnim="@anim/nav_default_pop_exit_anim"/>
+    </fragment>
+</navigation>
