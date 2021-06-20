@@ -10,6 +10,7 @@ import android.widget.SeekBar
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import com.example.musicplayer.R
 import com.example.musicplayer.databinding.FragmentPlayerBinding
@@ -19,17 +20,21 @@ import com.example.musicplayer.player.state.QueueConstructor
 import com.example.musicplayer.utils.OnSwipeListener
 import com.example.musicplayer.utils.PreferencesManager
 import com.example.musicplayer.utils.memberBinding
+import com.example.musicplayer.viewmodels.FavoriteViewModel
 import com.example.musicplayer.viewmodels.PlayerViewModel
 import kotlin.math.roundToInt
 
 class PlayerFragment : Fragment() {
 
     private val playerModel: PlayerViewModel by activityViewModels()
+    private val favoriteModel : FavoriteViewModel by activityViewModels()
+
     private val binding by memberBinding(FragmentPlayerBinding::inflate) {
         trackTitle.isSelected = false
     }
 
     private var animation : Animation? = null
+    private var isFavorite : Boolean = false
 
     val preferencesManager = PreferencesManager.getInstance()
 
@@ -78,6 +83,16 @@ class PlayerFragment : Fragment() {
 
                     else -> {}
                 }
+
+                favoriteModel.MusicExist(track.id).observe(viewLifecycleOwner, Observer { x ->
+                    isFavorite = if(x != null){
+                        binding.favoriteCheckbox.setImageResource(R.drawable.ic_heart_filled)
+                        true
+                    } else{
+                        binding.favoriteCheckbox.setImageResource(R.drawable.ic_heart_outline)
+                        false
+                    }
+                })
             }
         }
 
@@ -232,6 +247,22 @@ class PlayerFragment : Fragment() {
 
             binding.gradientView.background = gradient
         })
+
+        binding.favoriteCheckbox.setOnClickListener{
+            if(isFavorite == true){
+                //usun
+                playerModel.track.value?.let { track -> favoriteModel.DeleteMusic(track.id) }
+                binding.favoriteCheckbox.setImageResource(R.drawable.ic_heart_outline)
+                isFavorite = false
+            }
+            else{
+                //dodaj
+                playerModel.track.value?.let { track -> favoriteModel.AddMusic(track.id) }
+                binding.favoriteCheckbox.setImageResource(R.drawable.ic_heart_filled)
+                isFavorite = true
+            }
+        }
+
 
         return binding.root
     }
