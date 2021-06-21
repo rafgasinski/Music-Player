@@ -32,6 +32,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
+
         stopService(Intent(this, MusicService::class.java))
     }
 
@@ -61,6 +62,7 @@ class MainActivity : AppCompatActivity() {
             super.onBackPressed();
         } else {
             navController.navigateUp()
+            window.statusBarColor = ContextCompat.getColor(this, R.color.aboveBackground)
         }
     }
 

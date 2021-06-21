@@ -244,7 +244,7 @@ class PlayerFragment : Fragment() {
                 GradientDrawable.Orientation.TOP_BOTTOM, intArrayOf(manipulateColor(it, 0.6f), manipulateColor(it, 0.5f), manipulateColor(it, 0.4f), Color.parseColor("#1b2129"))
             )
             gradient.cornerRadius = 0f
-
+            activity?.window?.statusBarColor = manipulateColor(it, 0.6f)
             binding.gradientView.background = gradient
         })
 

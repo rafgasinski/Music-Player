@@ -177,16 +177,17 @@ class MusicService : Service(), Player.Listener, PlayerStateManager.Callback, Pr
     }
 
     override fun onPlayingUpdate(isPlaying: Boolean) {
+        notification.setPlaying(this, isPlaying)
+        startForegroundOrNotify()
+
         if (isPlaying && !player.isPlaying) {
             player.play()
             audioReactor.requestFocus()
             startPollingPosition()
         } else {
             player.pause()
+            stopForeground(false)
         }
-
-        notification.setPlaying(this, isPlaying)
-        startForegroundOrNotify()
     }
 
     override fun onLoopUpdate(loopMode: LoopMode) {
@@ -285,10 +286,6 @@ class MusicService : Service(), Player.Listener, PlayerStateManager.Callback, Pr
                     playerManager.setPlaying(
                         !playerManager.isPlaying
                     )
-
-                    if(!playerManager.isPlaying){
-                        stopForeground(false)
-                    }
                 }
 
                 PlayerNotification.ACTION_FAVORITE -> {

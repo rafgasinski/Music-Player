@@ -74,7 +74,7 @@ class ClickedAlbumFragment : Fragment() {
         val albumArtists = arrayListOf<String>()
 
         currentAlbum.tracks.forEach { track ->
-            val splitArtistList = track.artistName.split(" feat. ", " & ")
+            val splitArtistList = track.artistName.split(" feat. ", " & ", ", ")
             splitArtistList.forEach {
                 if(!albumArtists.contains(it)){
                     albumArtists.add(it)
