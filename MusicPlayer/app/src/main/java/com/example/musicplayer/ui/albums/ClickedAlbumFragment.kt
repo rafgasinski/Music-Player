@@ -8,8 +8,10 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
+import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
@@ -19,6 +21,7 @@ import com.example.musicplayer.databinding.FragmentClickedAlbumBinding
 import com.example.musicplayer.music.MusicStore
 import com.example.musicplayer.player.state.QueueConstructor
 import com.example.musicplayer.utils.PreferencesManager
+import com.example.musicplayer.viewmodels.AlbumViewModel
 import com.example.musicplayer.viewmodels.PlayerViewModel
 import kotlin.math.roundToInt
 
@@ -28,10 +31,13 @@ class ClickedAlbumFragment : Fragment() {
     private val binding get() = _binding!!
 
     private lateinit var playerModel: PlayerViewModel
+    private lateinit var albumModel : AlbumViewModel
 
     private val args : ClickedAlbumFragmentArgs by navArgs()
 
     val preferencesManager = PreferencesManager.getInstance()
+
+    private var isFavorite : Boolean = false
 
     private val clickedAlbumTracksAdapter: ClickedAlbumTracksAdapter by lazy {
         ClickedAlbumTracksAdapter(onItemClick = { playerModel.playTrack(it, QueueConstructor.IN_ALBUM.toInt()) })
@@ -42,7 +48,9 @@ class ClickedAlbumFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentClickedAlbumBinding.inflate(inflater, container, false)
+
         playerModel = ViewModelProvider(this).get(PlayerViewModel::class.java)
+        albumModel = ViewModelProvider(this).get(AlbumViewModel::class.java)
 
         val currentAlbum = MusicStore.getInstance().albums.find { it.id == args.albumId }!!
 
@@ -52,10 +60,30 @@ class ClickedAlbumFragment : Fragment() {
             findNavController().navigateUp()
         }
 
+        albumModel.AlbumExist(currentAlbum.id).observe(viewLifecycleOwner, Observer { album ->
+            if(album == null){
+                isFavorite = false
+                binding.toolbar.menu.getItem(0).setIcon(ContextCompat.getDrawable(requireContext(), R.drawable.ic_heart_outline))
+            }
+            else{
+                isFavorite = true
+                binding.toolbar.menu.getItem(0).setIcon(ContextCompat.getDrawable(requireContext(), R.drawable.ic_heart_filled))
+            }
+        })
+
         binding.toolbar.setOnMenuItemClickListener {
             when (it.itemId) {
                 R.id.addTracksListToFav -> {
-                    // TO DO ADD FAVORITE MECHANISM
+                    if(isFavorite){
+                        albumModel.DeleteAlbum(currentAlbum.id)
+                        isFavorite = false
+                        binding.toolbar.menu.getItem(0).setIcon(ContextCompat.getDrawable(requireContext(), R.drawable.ic_heart_outline))
+                    }
+                    else{
+                        albumModel.AddAlbum(currentAlbum.id)
+                        isFavorite = true
+                        binding.toolbar.menu.getItem(0).setIcon(ContextCompat.getDrawable(requireContext(), R.drawable.ic_heart_filled))
+                    }
                     true
                 }
 

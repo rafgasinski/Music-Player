@@ -5,9 +5,10 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 
-@Database(entities = [FavoriteTable::class], version = 5, exportSchema = false)
+@Database(entities = [FavoriteTable::class, AlbumTable::class], version = 7, exportSchema = false)
 abstract class FavoriteDatabase : RoomDatabase() {
     abstract fun favoriteTableDao() : FavoriteTableDao
+    abstract fun albumTableDao() : AlbumTableDao
 
     companion object {
         @Volatile
