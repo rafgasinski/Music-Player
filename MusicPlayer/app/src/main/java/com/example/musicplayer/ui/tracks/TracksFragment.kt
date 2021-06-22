@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.*
 import android.widget.EditText
 import androidx.appcompat.widget.SearchView
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.example.musicplayer.R
@@ -35,6 +36,8 @@ class TracksFragment : Fragment() {
         _binding = FragmentTracksBinding.inflate(inflater, container, false)
         playerModel = ViewModelProvider(this).get(PlayerViewModel::class.java)
 
+        activity?.window?.statusBarColor = ContextCompat.getColor(requireContext(), R.color.aboveBackground)
+
         binding.toolbar.title = getString(R.string.all_tracks)
         binding.toolbar.inflateMenu(R.menu.menu_tracks_fragment)
 
@@ -45,7 +48,7 @@ class TracksFragment : Fragment() {
                     searchView = menuItemSearch!!.actionView as SearchView
 
                     val searchEditText = searchView?.findViewById<EditText>(androidx.appcompat.R.id.search_src_text)
-                    searchEditText?.setHint(R.string.search_track_list)
+                    searchEditText?.setHint(R.string.search_in_tracks_list)
 
                     searchView!!.setOnQueryTextListener(
                         object : SearchView.OnQueryTextListener {

@@ -1,6 +1,8 @@
 package com.example.musicplayer.adapters
 
 import android.content.Context
+import android.view.View
+import androidx.core.content.ContextCompat
 import androidx.databinding.ViewDataBinding
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.Observer
@@ -11,7 +13,9 @@ import com.example.musicplayer.music.Album
 import com.example.musicplayer.music.Artist
 import com.example.musicplayer.music.BaseModel
 import com.example.musicplayer.music.Track
+import com.example.musicplayer.player.state.QueueConstructor
 import com.example.musicplayer.utils.inflater
+import com.example.musicplayer.viewmodels.FavoriteTracksViewModel
 import com.example.musicplayer.viewmodels.PlayerViewModel
 
 abstract class BaseHolder<T : BaseModel>(
@@ -126,7 +130,7 @@ class AlbumLinearViewHolder private constructor(
         binding.albumName.requestLayout()
         binding.albumArtist.requestLayout()
 
-        playerModel.currentPlayingAlbum.observe(itemView.context as LifecycleOwner, Observer {
+        playerModel.currentPlayingAlbum.observe(itemView.context as LifecycleOwner, {
             if(it == data){
                 binding.playAlbum.setImageResource(R.drawable.ic_pause_circle)
             } else {
@@ -134,7 +138,7 @@ class AlbumLinearViewHolder private constructor(
             }
         })
 
-        playerModel.isPlaying.observe(itemView.context as LifecycleOwner, Observer { isPlaying ->
+        playerModel.isPlaying.observe(itemView.context as LifecycleOwner, { isPlaying ->
             if(isPlaying && playerModel.currentPlayingAlbum.value == data){
                 binding.playAlbum.setImageResource(R.drawable.ic_pause_circle)
             } else {
@@ -169,11 +173,23 @@ class AlbumLinearViewHolder private constructor(
 
 class ClickedAlbumTracksViewHolder private constructor(
     private val binding: ItemAlbumTrackBinding,
-    onItemClick: (data: Track) -> Unit,
-) : BaseHolder<Track>(binding, onItemClick) {
+    private val playerModel: PlayerViewModel,
+) : BaseHolder<Track>(binding) {
 
     override fun onBind(data: Track) {
         binding.track = data
+
+        playerModel.track.observe(itemView.context as LifecycleOwner, { track ->
+            if(track?.id == data.id){
+                binding.trackTitle.setTextColor(ContextCompat.getColor(itemView.context, R.color.accent))
+            } else {
+                binding.trackTitle.setTextColor(ContextCompat.getColor(itemView.context, R.color.white))
+            }
+        })
+
+        itemView.setOnClickListener {
+            playerModel.playTrack(data, QueueConstructor.IN_ALBUM.toInt())
+        }
 
         binding.trackTitle.requestLayout()
         binding.trackArtist.requestLayout()
@@ -182,11 +198,11 @@ class ClickedAlbumTracksViewHolder private constructor(
     companion object {
         fun create(
             context: Context,
-            onItemClick: (data: Track) -> Unit,
+            playerModel: PlayerViewModel
         ): ClickedAlbumTracksViewHolder {
             return ClickedAlbumTracksViewHolder(
                 ItemAlbumTrackBinding.inflate(context.inflater),
-                onItemClick
+                playerModel
             )
         }
     }
@@ -200,7 +216,11 @@ class ArtistsViewHolder private constructor(
     override fun onBind(data: Artist) {
         binding.artist = data
 
-        binding.artistsTracksCount.text = binding.artistsTracksCount.context.resources.getString(R.string.artists_track_count, data.tracksCount)
+        if(data.tracksCount != 1){
+            binding.artistsTracksCount.text = binding.artistsTracksCount.context.resources.getString(R.string.artists_tracks_count, data.tracksCount)
+        } else {
+            binding.artistsTracksCount.text = binding.artistsTracksCount.context.resources.getString(R.string.artists_one_track, data.tracksCount)
+        }
 
         binding.artistName.requestLayout()
         binding.artistsTracksCount.requestLayout()
@@ -221,11 +241,23 @@ class ArtistsViewHolder private constructor(
 
 class ClickedArtistTracksViewHolder private constructor(
     private val binding: ItemTrackBinding,
-    onItemClick: (data: Track) -> Unit,
-) : BaseHolder<Track>(binding, onItemClick) {
+    private val playerModel: PlayerViewModel
+) : BaseHolder<Track>(binding) {
 
     override fun onBind(data: Track) {
         binding.track = data
+
+        playerModel.track.observe(itemView.context as LifecycleOwner, { track ->
+            if(track?.id == data.id){
+                binding.trackTitle.setTextColor(ContextCompat.getColor(itemView.context, R.color.accent))
+            } else {
+                binding.trackTitle.setTextColor(ContextCompat.getColor(itemView.context, R.color.white))
+            }
+        })
+
+        itemView.setOnClickListener {
+            playerModel.playTrack(data, QueueConstructor.IN_ARTIST.toInt())
+        }
 
         binding.trackTitle.requestLayout()
         binding.trackArtist.requestLayout()
@@ -234,11 +266,11 @@ class ClickedArtistTracksViewHolder private constructor(
     companion object {
         fun create(
             context: Context,
-            onItemClick: (data: Track) -> Unit,
+            playerModel: PlayerViewModel,
         ): ClickedArtistTracksViewHolder {
             return ClickedArtistTracksViewHolder(
                 ItemTrackBinding.inflate(context.inflater),
-                onItemClick
+                playerModel
             )
         }
     }

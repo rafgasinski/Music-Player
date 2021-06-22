@@ -30,14 +30,13 @@
                 app:expandedTitleGravity="center"
                 app:collapsedTitleTextAppearance="@style/CollapsedTitleText"
                 app:expandedTitleTextAppearance="@style/TransparentText"
-                app:title="@{artist.name}"
                 app:expandedTitleMarginBottom="20dp"
                 app:expandedTitleMarginStart="15dp"
                 app:contentScrim="@color/aboveBackground"
                 app:layout_scrollFlags="scroll|exitUntilCollapsed" >
 
                 <TextView
-                    android:id="@+id/album_name"
+                    android:id="@+id/artist_name"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
@@ -75,11 +74,30 @@
                     app:layout_scrollFlags="scroll|enterAlways"
                     app:navigationIcon="@drawable/ic_back"
                     app:contentInsetStartWithNavigation="0dp"
-                    app:menu="@menu/menu_clicked_album_artist"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_collapseMode="pin"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    app:layout_constraintTop_toTopOf="parent" >
+
+                    <TextView
+                        android:id="@+id/toolbar_title"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:text="@{artist.name}"
+                        android:textColor="@color/white"
+                        android:gravity="center"
+                        android:textSize="16sp"
+                        android:paddingStart="2dp"
+                        android:paddingEnd="2dp"
+                        android:alpha="0"
+                        android:layout_marginEnd="?android:attr/actionBarSize"
+                        android:textStyle="bold"
+                        android:focusable="true"
+                        android:focusableInTouchMode="true"
+                        android:singleLine="true"
+                        tools:text="Inspination" />
+
+                </androidx.appcompat.widget.Toolbar>
 
             </com.google.android.material.appbar.CollapsingToolbarLayout>
 

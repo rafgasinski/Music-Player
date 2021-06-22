@@ -86,7 +86,7 @@ class MusicService : Service(), Player.Listener, PlayerStateManager.Callback, Pr
         connector = PlayerSessionConnection(this, player, mediaSession)
 
         IntentFilter().apply {
-            addAction(PlayerNotification.ACTION_FAVORITE)
+            addAction(PlayerNotification.ACTION_SHUFFLE)
             addAction(PlayerNotification.ACTION_PLAY_PAUSE)
             addAction(PlayerNotification.ACTION_SKIP_PREV)
             addAction(PlayerNotification.ACTION_SKIP_NEXT)
@@ -104,10 +104,6 @@ class MusicService : Service(), Player.Listener, PlayerStateManager.Callback, Pr
 
         playerManager.setHasPlayed(playerManager.isPlaying)
         playerManager.addCallback(this)
-
-        if (playerManager.track != null) {
-            restore()
-        }
     }
 
     override fun onDestroy() {
@@ -190,6 +186,12 @@ class MusicService : Service(), Player.Listener, PlayerStateManager.Callback, Pr
         }
     }
 
+    override fun onShuffleUpdate(isShuffling: Boolean) {
+        notification.setShuffle(this, isShuffling)
+
+        startForegroundOrNotify()
+    }
+
     override fun onLoopUpdate(loopMode: LoopMode) {
         player.repeatMode = if (loopMode == LoopMode.TRACK) {
             Player.REPEAT_MODE_ONE
@@ -214,15 +216,6 @@ class MusicService : Service(), Player.Listener, PlayerStateManager.Callback, Pr
         return SimpleExoPlayer.Builder(this, audioRenderer)
             .setMediaSourceFactory(DefaultMediaSourceFactory(this, extractorsFactory))
             .build()
-    }
-
-    private fun restore() {
-        onParentUpdate(playerManager.parent)
-        onPlayingUpdate(playerManager.isPlaying)
-        onShuffleUpdate(playerManager.isShuffling)
-        onLoopUpdate(playerManager.loopMode)
-        onTrackUpdate(playerManager.track)
-        onSeek(playerManager.position)
     }
 
     private fun startPollingPosition() {
@@ -288,9 +281,9 @@ class MusicService : Service(), Player.Listener, PlayerStateManager.Callback, Pr
                     )
                 }
 
-                PlayerNotification.ACTION_FAVORITE -> {
-                    //TO DO
-                }
+                PlayerNotification.ACTION_SHUFFLE -> playerManager.setShuffling(
+                    !playerManager.isShuffling, keepSong = true
+                )
 
                 PlayerNotification.ACTION_SKIP_PREV -> playerManager.prev(true)
                 PlayerNotification.ACTION_SKIP_NEXT -> playerManager.next()

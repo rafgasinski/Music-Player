@@ -52,13 +52,43 @@ class PreferencesManager private constructor(context: Context) :
             }
         }
 
+    var clickedHeartTrackId: Long
+        get() = sharedPrefs.getLong(KEY_CLICKED_HEART_TRACK_ID, Long.MIN_VALUE)
+
+        set(value) {
+            mLiveClickedHeartTrackId.value = value
+            sharedPrefs.edit {
+                putLong(KEY_CLICKED_HEART_TRACK_ID, value)
+                apply()
+            }
+        }
+
+    var clickedHeartAlbumId: Long
+        get() = sharedPrefs.getLong(KEY_CLICKED_HEART_ALBUM_ID, Long.MIN_VALUE)
+
+        set(value) {
+            mLiveClickedHeartAlbumId.value = value
+            sharedPrefs.edit {
+                putLong(KEY_CLICKED_HEART_ALBUM_ID, value)
+                apply()
+            }
+        }
+
     private val mLiveGradientColor = MutableLiveData(accentColor)
     val liveGradientColor: LiveData<Int> get() = mLiveGradientColor
+
+    private val mLiveClickedHeartTrackId = MutableLiveData(Long.MIN_VALUE)
+    val liveClickedHeartTrackId: LiveData<Long> get() = mLiveClickedHeartTrackId
+
+    private val mLiveClickedHeartAlbumId = MutableLiveData(Long.MIN_VALUE)
+    val liveClickedHeartAlbumId: LiveData<Long> get() = mLiveClickedHeartAlbumId
 
     companion object {
         const val KEY_TRACK_QUEUE_CONSTRUCTOR_MODE = "KEY_TRACK_QUEUE_CONSTRUCTOR_MODE"
         const val KEY_ALBUMS_USE_GRID_LAYOUT = "KEY_ALBUMS_USE_GRID_LAYOUT"
         const val KEY_GRADIENT_ACCENT_COLOR = "KEY_GRADIENT_ACCENT_COLOR"
+        const val KEY_CLICKED_HEART_TRACK_ID = "KEY_CLICKED_HEART_TRACK_ID"
+        const val KEY_CLICKED_HEART_ALBUM_ID = "KEY_CLICKED_HEART_ALBUM_ID"
 
         @Volatile
         private var INSTANCE: PreferencesManager? = null

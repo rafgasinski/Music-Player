@@ -2,7 +2,7 @@
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context=".ui.albums.ArtistsFragment">
+    tools:context=".ui.favorites.FavoritesTracksFragment">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/constraintLayout"
@@ -10,30 +10,19 @@
         android:layout_height="match_parent"
         android:background="@color/background">
 
-        <androidx.appcompat.widget.Toolbar
-            android:id="@+id/toolbar"
-            style="@style/Toolbar.Style"
-            app:layout_scrollFlags="scroll|enterAlways"
-            app:theme="@style/ToolbarTheme"
-            app:menu="@menu/menu_artists_fragment"
-            tools:title="@string/artists"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
         <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/artists_recycler_view"
+            android:id="@+id/tracks_recycler_view"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:paddingTop="10dp"
             android:paddingBottom="10dp"
             android:clipToPadding="false"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-            app:layout_constraintTop_toBottomOf="@id/toolbar"
+            app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            tools:listitem="@layout/item_artist" />
+            tools:listitem="@layout/item_track" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

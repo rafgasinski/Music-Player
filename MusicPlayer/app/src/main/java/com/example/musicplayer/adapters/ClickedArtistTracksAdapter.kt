@@ -3,8 +3,9 @@ package com.example.musicplayer.adapters
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.musicplayer.music.Track
+import com.example.musicplayer.viewmodels.PlayerViewModel
 
-class ClickedArtistTracksAdapter(private val onItemClick: (data: Track) -> Unit,) : RecyclerView.Adapter<ClickedArtistTracksViewHolder>() {
+class ClickedArtistTracksAdapter(private val playerModel: PlayerViewModel) : RecyclerView.Adapter<ClickedArtistTracksViewHolder>() {
 
     var tracksList: List<Track> = listOf()
 
@@ -12,7 +13,7 @@ class ClickedArtistTracksAdapter(private val onItemClick: (data: Track) -> Unit,
         parent: ViewGroup,
         viewType: Int
     ): ClickedArtistTracksViewHolder {
-        return ClickedArtistTracksViewHolder.create(parent.context, onItemClick)
+        return ClickedArtistTracksViewHolder.create(parent.context, playerModel)
     }
 
     override fun getItemCount(): Int {

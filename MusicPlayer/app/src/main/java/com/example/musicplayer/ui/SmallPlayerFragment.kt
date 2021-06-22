@@ -6,7 +6,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -14,7 +13,8 @@ import androidx.navigation.fragment.findNavController
 import com.example.musicplayer.R
 import com.example.musicplayer.databinding.FragmentSmallPlayerBinding
 import com.example.musicplayer.utils.OnSwipeListener
-import com.example.musicplayer.viewmodels.FavoriteViewModel
+import com.example.musicplayer.utils.PreferencesManager
+import com.example.musicplayer.viewmodels.FavoriteTracksViewModel
 import com.example.musicplayer.viewmodels.PlayerViewModel
 
 
@@ -25,18 +25,20 @@ class SmallPlayerFragment : Fragment() {
     private var isFavorite : Boolean = false
 
     private lateinit var playerModel: PlayerViewModel
-    private lateinit var favoriteModel: FavoriteViewModel
+    private lateinit var favoriteTracksModel: FavoriteTracksViewModel
+
+    val preferencesManager = PreferencesManager.getInstance()
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
 
         _binding = FragmentSmallPlayerBinding.inflate(inflater, container, false)
 
         playerModel = ViewModelProvider(this).get(PlayerViewModel::class.java)
-        favoriteModel = ViewModelProvider(this).get(FavoriteViewModel::class.java)
+        favoriteTracksModel = ViewModelProvider(this).get(FavoriteTracksViewModel::class.java)
 
         binding.lifecycleOwner = viewLifecycleOwner
         binding.playerModel = playerModel
@@ -97,20 +99,7 @@ class SmallPlayerFragment : Fragment() {
                 binding.track = track
                 binding.smallPlayerProgress.max = track.seconds.toInt()
 
-                /*Toast.makeText(activity, "ZMIANA TRACKU", Toast.LENGTH_SHORT).show()
-
-                favoriteModel.allFavoriteTracksID.observe(viewLifecycleOwner) {tracks ->
-                    if(tracks.any { x -> x.musicID == track.id }){
-                        binding.favoriteCheckbox.setImageResource(R.drawable.ic_heart_filled)
-                        isFavorite = true
-                    }
-                    else{
-                        binding.favoriteCheckbox.setImageResource(R.drawable.ic_heart_outline)
-                        isFavorite = false
-                    }
-                }*/
-
-                favoriteModel.MusicExist(track.id).observe(viewLifecycleOwner, Observer { x ->
+                favoriteTracksModel.musicExist(track.id).observe(viewLifecycleOwner, Observer { x ->
                     isFavorite = if(x != null){
                         binding.favoriteCheckbox.setImageResource(R.drawable.ic_heart_filled)
                         true
@@ -122,8 +111,6 @@ class SmallPlayerFragment : Fragment() {
             }
         }
 
-
-
         playerModel.isPlaying.observe(viewLifecycleOwner) { isPlaying ->
             if (isPlaying) {
                 binding.smallPlayerPlayPauseButton.setImageResource(R.drawable.ic_pause)
@@ -132,20 +119,18 @@ class SmallPlayerFragment : Fragment() {
             }
         }
 
-
         binding.favoriteCheckbox.setOnClickListener{
-            if(isFavorite){
-                //usun
-                playerModel.track.value?.let { track -> favoriteModel.DeleteMusic(track.id) }
+            isFavorite = if(isFavorite){
+                playerModel.track.value?.let { track -> favoriteTracksModel.deleteMusic(track.id) }
                 binding.favoriteCheckbox.setImageResource(R.drawable.ic_heart_outline)
-                isFavorite = false
-            }
-            else{
-                //dodaj
-                playerModel.track.value?.let { track -> favoriteModel.AddMusic(track.id) }
+                false
+            } else{
+                playerModel.track.value?.let { track -> favoriteTracksModel.addMusic(track.id) }
                 binding.favoriteCheckbox.setImageResource(R.drawable.ic_heart_filled)
-                isFavorite = true
+                true
             }
+
+            preferencesManager.clickedHeartTrackId = playerModel.track.value?.id ?: Long.MIN_VALUE
         }
 
 

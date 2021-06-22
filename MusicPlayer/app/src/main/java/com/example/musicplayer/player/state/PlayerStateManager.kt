@@ -96,6 +96,11 @@ class PlayerStateManager private constructor() {
                 mParent = track.album
                 mQueue = track.album.tracks.toMutableList()
             }
+
+            QueueConstructor.FAVORITE_TRACKS -> {
+                mParent = null
+                mQueue = musicStore.tracks.toMutableList()
+            }
         }
 
         mMode = mode
@@ -212,6 +217,7 @@ class PlayerStateManager private constructor() {
             QueueConstructor.IN_ARTIST -> (mParent as Artist).tracks.toMutableList()
             QueueConstructor.IN_ALBUM -> (mParent as Album).tracks.sortedBy { it.positionInAlbum }.toMutableList()
             QueueConstructor.ALL_TRACKS -> musicStore.tracks.toMutableList()
+            QueueConstructor.FAVORITE_TRACKS -> musicStore.tracks.toMutableList()
         }
 
         if (keepSong) {

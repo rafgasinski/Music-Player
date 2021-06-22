@@ -21,7 +21,7 @@ class TracksAdapter(private val onItemClick: (data: Track) -> Unit) : RecyclerVi
     }
 
     override fun getFilter(): Filter {
-        return  filterSearch
+        return filterSearch
     }
 
     private var filterSearch  = object : Filter() {

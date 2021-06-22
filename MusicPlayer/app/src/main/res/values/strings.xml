@@ -16,7 +16,8 @@
     <string name="previous_track">Previous Track</string>
     <string name="play_pause_button">Play Pause Button</string>
     <string name="albums">Albums</string>
-    <string name="search_track_list">Search Tracks List</string>
+    <string name="search_in_tracks_list">Search In Tracks List</string>
+    <string name="search_in_artists_list">Search In Artists List</string>
     <string name="search">Search</string>
     <string name="all_tracks">All Tracks</string>
     <string name="loop_current_track">Loop Current Track</string>
@@ -31,5 +32,6 @@
     <string name="album_by">Album by %s</string>
     <string name="playing_from">PLAYING FROM %s</string>
     <string name="playing_tracks_by">PLAYING TRACKS BY</string>
-    <string name="artists_track_count">%d Tracks</string>
+    <string name="artists_tracks_count">%d tracks</string>
+    <string name="artists_one_track">%d track</string>
 </resources>

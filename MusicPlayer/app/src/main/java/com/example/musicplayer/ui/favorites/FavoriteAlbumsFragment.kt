@@ -1,11 +1,11 @@
-package com.example.musicplayer.ui.albums
+package com.example.musicplayer.ui.favorites
 
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AnimationUtils
-import androidx.core.content.ContextCompat
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.ViewModelProvider
@@ -15,18 +15,23 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.musicplayer.R
 import com.example.musicplayer.adapters.AlbumsGridAdapter
 import com.example.musicplayer.adapters.AlbumsLinearAdapter
-import com.example.musicplayer.databinding.FragmentAlbumsBinding
+import com.example.musicplayer.databinding.FragmentFavoriteAlbumsBinding
 import com.example.musicplayer.music.Album
 import com.example.musicplayer.music.MusicStore
+import com.example.musicplayer.music.Track
+import com.example.musicplayer.ui.albums.AlbumsFragmentDirections
 import com.example.musicplayer.utils.PreferencesManager
+import com.example.musicplayer.viewmodels.FavoriteAlbumsViewModel
+import com.example.musicplayer.viewmodels.FavoriteTracksViewModel
 import com.example.musicplayer.viewmodels.PlayerViewModel
 
-class AlbumsFragment : Fragment() {
+class FavoriteAlbumsFragment : Fragment() {
 
-    private var _binding: FragmentAlbumsBinding? = null
+    private var _binding: FragmentFavoriteAlbumsBinding? = null
     private val binding get() = _binding!!
 
     val playerModel: PlayerViewModel by activityViewModels()
+    private lateinit var favoriteAlbumsModel : FavoriteAlbumsViewModel
     private val musicStore = MusicStore.getInstance()
 
     private val albumsGridAdapter: AlbumsGridAdapter by lazy {
@@ -43,16 +48,23 @@ class AlbumsFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = FragmentAlbumsBinding.inflate(inflater, container, false)
+        _binding = FragmentFavoriteAlbumsBinding.inflate(inflater, container, false)
 
-        activity?.window?.statusBarColor = ContextCompat.getColor(requireContext(), R.color.aboveBackground)
+        favoriteAlbumsModel = ViewModelProvider(this).get(FavoriteAlbumsViewModel::class.java)
 
-        binding.toolbar.title = getString(R.string.albums)
+        favoriteAlbumsModel.allFavoriteAlbumsId.observe(viewLifecycleOwner, { favoritesTracksIds ->
+            val favoritesAlbumsFromLoader = arrayListOf<Album>()
+            musicStore.albums.forEach { album ->
+                if(favoritesTracksIds.any{it.albumId == album.id}){
+                    favoritesAlbumsFromLoader.add(album)
+                }
+            }
+
+            albumsGridAdapter.setData(favoritesAlbumsFromLoader)
+            albumsLinearAdapter.setData(favoritesAlbumsFromLoader)
+        })
 
         val albumsUseGridLayout = preferencesManager.albumsUseGridLayout
-
-        albumsGridAdapter.setData(musicStore.albums)
-        albumsLinearAdapter.setData(musicStore.albums)
 
         binding.albumsRecyclerView.apply {
             if(albumsUseGridLayout == 1) {
@@ -62,25 +74,11 @@ class AlbumsFragment : Fragment() {
             }
         }
 
-        binding.toolbar.setOnMenuItemClickListener{
-            when(it.itemId){
-                R.id.changeToLinear  -> {
-                    preferencesManager.albumsUseGridLayout = 0
-                    setToLinear(true)
+        preferencesManager.liveClickedHeartAlbumId.observe(viewLifecycleOwner, {
+            if(it != Long.MIN_VALUE){
 
-                    true
-                }
-
-                R.id.changeToGrid -> {
-                    preferencesManager.albumsUseGridLayout = 1
-                    setToGrid(true)
-
-                    true
-                }
-
-                else -> false
             }
-        }
+        })
 
         return binding.root
     }
@@ -99,8 +97,6 @@ class AlbumsFragment : Fragment() {
         }
 
         binding.albumsRecyclerView.setPadding((7 * scale + 0.5f).toInt(), (10 * scale + 0.5f).toInt(), (7 * scale + 0.5f).toInt(), 0)
-        binding.toolbar.menu.clear()
-        binding.toolbar.inflateMenu(R.menu.menu_albums_linear)
     }
 
     private fun setToLinear(animate : Boolean) {
@@ -117,13 +113,9 @@ class AlbumsFragment : Fragment() {
         }
 
         binding.albumsRecyclerView.setPadding(0, (8 * scale + 0.5f).toInt(), 0, (8 * scale + 0.5f).toInt())
-        binding.toolbar.menu.clear()
-        binding.toolbar.inflateMenu(R.menu.menu_albums_grid)
     }
 
     private fun navToClickedAlbum(album: Album) {
-        findNavController().navigate(AlbumsFragmentDirections.actionAlbumsFragmentToFragmentClickedAlbum(album.id))
+        findNavController().navigate(FavoritesFragmentDirections.actionFavoritesFragmentToFragmentClickedAlbum(album.id))
     }
-
-
 }
