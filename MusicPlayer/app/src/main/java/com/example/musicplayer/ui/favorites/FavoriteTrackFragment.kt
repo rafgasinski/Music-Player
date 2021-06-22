@@ -55,12 +55,6 @@ class FavoriteTrackFragment : Fragment() {
             }
         })
 
-        preferencesManager.liveClickedHeartTrackId.observe(viewLifecycleOwner, { savedTrackId ->
-            if(savedTrackId != Long.MIN_VALUE){
-                
-            }
-        })
-
         return binding.root
     }
 }

@@ -82,7 +82,7 @@ inline fun <reified T : BaseModel> ImageView.loadAndGetVibrantColor(
                         if(p.vibrantSwatch != null){
                             preferencesManager.gradientAccentColor = p.getVibrantColor(ResourcesCompat.getColor(context.resources, R.color.accent, null))
                         } else {
-                            preferencesManager.gradientAccentColor = p.mutedSwatch?.rgb ?: ResourcesCompat.getColor(context.resources, R.color.accent, null)
+                            preferencesManager.gradientAccentColor = p.getMutedColor(ResourcesCompat.getColor(context.resources, R.color.accent, null))
                         }
                     }
                     return false

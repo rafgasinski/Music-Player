@@ -62,6 +62,8 @@ class MusicFilesLoader(private val context: Context) {
         albums = albums.distinctBy {
             it.name to it.artistName
         }.toMutableList()
+
+        albums.sortBy { it.name }
     }
 
     @SuppressLint("InlinedApi")

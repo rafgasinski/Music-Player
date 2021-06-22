@@ -74,12 +74,6 @@ class FavoriteAlbumsFragment : Fragment() {
             }
         }
 
-        preferencesManager.liveClickedHeartAlbumId.observe(viewLifecycleOwner, {
-            if(it != Long.MIN_VALUE){
-
-            }
-        })
-
         return binding.root
     }
 

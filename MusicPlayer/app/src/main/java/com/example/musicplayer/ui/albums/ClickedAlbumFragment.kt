@@ -4,13 +4,11 @@ import android.annotation.SuppressLint
 import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
-import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
@@ -43,8 +41,6 @@ class ClickedAlbumFragment : Fragment() {
     private val clickedAlbumTracksAdapter: ClickedAlbumTracksAdapter by lazy {
         ClickedAlbumTracksAdapter(playerModel)
     }
-
-    var backgroundGradientAlreadySet : Boolean = false
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreateView(
@@ -137,13 +133,11 @@ class ClickedAlbumFragment : Fragment() {
 
                 val gradient : GradientDrawable =
                     if(it != ResourcesCompat.getColor(resources, R.color.accent, null)){
-                        Log.d("lol", "nie równe accent")
                         GradientDrawable(
                             GradientDrawable.Orientation.TOP_BOTTOM, intArrayOf(manipulateColor(it, 0.6f), manipulateColor(it, 0.5f),
                                 manipulateColor(it, 0.4f), ResourcesCompat.getColor(resources, R.color.background, null))
                         )
                     } else {
-                        Log.d("lol", "weszlo rowne accent")
                         GradientDrawable(
                             GradientDrawable.Orientation.TOP_BOTTOM, intArrayOf(manipulateColor(it, 0.8f),
                                 manipulateColor(it, 0.5f), ResourcesCompat.getColor(resources, R.color.background, null))
