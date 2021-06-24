@@ -98,7 +98,7 @@ class AlbumsFragment : Fragment() {
             layoutManager = GridLayoutManager(requireContext(), 2)
         }
 
-        binding.albumsRecyclerView.setPadding((7 * scale + 0.5f).toInt(), (10 * scale + 0.5f).toInt(), (7 * scale + 0.5f).toInt(), 0)
+        binding.albumsRecyclerView.setPadding((7 * scale + 0.5f).toInt(), (14 * scale + 0.5f).toInt(), (7 * scale + 0.5f).toInt(), 0)
         binding.toolbar.menu.clear()
         binding.toolbar.inflateMenu(R.menu.menu_albums_linear)
     }

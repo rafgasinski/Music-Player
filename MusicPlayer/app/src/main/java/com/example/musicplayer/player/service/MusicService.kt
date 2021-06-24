@@ -86,7 +86,7 @@ class MusicService : Service(), Player.Listener, PlayerStateManager.Callback, Pr
         connector = PlayerSessionConnection(this, player, mediaSession)
 
         IntentFilter().apply {
-            addAction(PlayerNotification.ACTION_SHUFFLE)
+            addAction(PlayerNotification.ACTION_FAVORITE)
             addAction(PlayerNotification.ACTION_PLAY_PAUSE)
             addAction(PlayerNotification.ACTION_SKIP_PREV)
             addAction(PlayerNotification.ACTION_SKIP_NEXT)
@@ -186,12 +186,6 @@ class MusicService : Service(), Player.Listener, PlayerStateManager.Callback, Pr
         }
     }
 
-    override fun onShuffleUpdate(isShuffling: Boolean) {
-        notification.setShuffle(this, isShuffling)
-
-        startForegroundOrNotify()
-    }
-
     override fun onLoopUpdate(loopMode: LoopMode) {
         player.repeatMode = if (loopMode == LoopMode.TRACK) {
             Player.REPEAT_MODE_ONE
@@ -281,7 +275,7 @@ class MusicService : Service(), Player.Listener, PlayerStateManager.Callback, Pr
                     )
                 }
 
-                PlayerNotification.ACTION_SHUFFLE -> playerManager.setShuffling(
+                PlayerNotification.ACTION_FAVORITE -> playerManager.setShuffling(
                     !playerManager.isShuffling, keepSong = true
                 )
 

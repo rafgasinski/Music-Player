@@ -30,8 +30,8 @@ class FavoriteAlbumsFragment : Fragment() {
     private var _binding: FragmentFavoriteAlbumsBinding? = null
     private val binding get() = _binding!!
 
-    val playerModel: PlayerViewModel by activityViewModels()
-    private lateinit var favoriteAlbumsModel : FavoriteAlbumsViewModel
+    private val playerModel: PlayerViewModel by activityViewModels()
+    private val favoriteAlbumsModel : FavoriteAlbumsViewModel by activityViewModels()
     private val musicStore = MusicStore.getInstance()
 
     private val albumsGridAdapter: AlbumsGridAdapter by lazy {
@@ -49,8 +49,6 @@ class FavoriteAlbumsFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentFavoriteAlbumsBinding.inflate(inflater, container, false)
-
-        favoriteAlbumsModel = ViewModelProvider(this).get(FavoriteAlbumsViewModel::class.java)
 
         favoriteAlbumsModel.allFavoriteAlbumsId.observe(viewLifecycleOwner, { favoritesTracksIds ->
             val favoritesAlbumsFromLoader = arrayListOf<Album>()

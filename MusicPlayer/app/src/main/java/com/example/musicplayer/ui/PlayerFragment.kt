@@ -36,7 +36,6 @@ class PlayerFragment : Fragment() {
         trackTitle.isSelected = false
     }
 
-    private var animation : Animation? = null
     private var isFavorite : Boolean = false
 
     val preferencesManager = PreferencesManager.getInstance()
@@ -46,8 +45,6 @@ class PlayerFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-
-        animation = AnimationUtils.loadAnimation(requireContext(), R.anim.blink_anim)
 
         activity?.window?.statusBarColor = ContextCompat.getColor(inflater.context, R.color.background)
 
@@ -213,13 +210,11 @@ class PlayerFragment : Fragment() {
         playerModel.loopMode.observe(viewLifecycleOwner) { loopMode ->
             when (loopMode) {
                 LoopMode.NONE -> {
-                    binding.trackCover.startAnimation(animation)
                     binding.loop.setColorFilter(ContextCompat.getColor(requireContext(), R.color.white))
                     binding.loop.setImageResource(R.drawable.ic_repeat)
                 }
 
                 LoopMode.ALL -> {
-                    binding.trackCover.startAnimation(animation)
                     binding.loop.setColorFilter(ContextCompat.getColor(requireContext(), R.color.accent))
                     binding.loop.setImageResource(R.drawable.ic_repeat)
                 }

@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
@@ -24,8 +25,8 @@ class SmallPlayerFragment : Fragment() {
     private val binding get() = _binding!!
     private var isFavorite : Boolean = false
 
-    private lateinit var playerModel: PlayerViewModel
-    private lateinit var favoriteTracksModel: FavoriteTracksViewModel
+    private val playerModel: PlayerViewModel by activityViewModels()
+    private val favoriteTracksModel: FavoriteTracksViewModel by activityViewModels()
 
     val preferencesManager = PreferencesManager.getInstance()
 
@@ -36,9 +37,6 @@ class SmallPlayerFragment : Fragment() {
     ): View {
 
         _binding = FragmentSmallPlayerBinding.inflate(inflater, container, false)
-
-        playerModel = ViewModelProvider(this).get(PlayerViewModel::class.java)
-        favoriteTracksModel = ViewModelProvider(this).get(FavoriteTracksViewModel::class.java)
 
         binding.lifecycleOwner = viewLifecycleOwner
         binding.playerModel = playerModel

@@ -9,6 +9,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
+import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
@@ -109,6 +110,8 @@ class ClickedAlbumFragment : Fragment() {
             }
         }
 
+        binding.albumArtists.text = resources.getString(R.string.album_by, albumArtists.toString().replace("[", "").replace("]", ""))
+
         binding.shuffleAlbumButton.setOnClickListener {
             val animationClick = AnimationUtils.loadAnimation(inflater.context, R.anim.shuffle_button_clicked)
             it.startAnimation(animationClick)
@@ -125,12 +128,9 @@ class ClickedAlbumFragment : Fragment() {
             playerModel.playAlbum(currentAlbum, true)
         }
 
-        binding.albumArtists.text = resources.getString(R.string.album_by, albumArtists.toString().replace("[", "").replace("]", ""))
-
         preferencesManager.liveGradientColor.observe(viewLifecycleOwner, {
             binding.gradientView.alpha = 0f
             binding.gradientView.animate().setDuration(1150).alpha(1f).withStartAction {
-
                 val gradient : GradientDrawable =
                     if(it != ResourcesCompat.getColor(resources, R.color.accent, null)){
                         GradientDrawable(

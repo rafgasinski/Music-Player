@@ -13,7 +13,6 @@ import com.example.musicplayer.BuildConfig
 import com.example.musicplayer.R
 import com.example.musicplayer.music.Parent
 import com.example.musicplayer.music.Track
-import com.example.musicplayer.player.state.LoopMode
 import com.example.musicplayer.utils.loadBitmap
 
 
@@ -29,7 +28,7 @@ class PlayerNotification private constructor(
         setSilent(true)
         setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
 
-        addAction(buildShuffleAction(context, false))
+        addAction(buildFavoriteAction(context, false))
         addAction(buildAction(context, ACTION_SKIP_PREV, R.drawable.ic_previous_notification))
         addAction(buildPlayPauseAction(context, true))
         addAction(buildAction(context, ACTION_SKIP_NEXT, R.drawable.ic_next_notification))
@@ -52,8 +51,8 @@ class PlayerNotification private constructor(
         }
     }
 
-    fun setShuffle(context: Context, isShuffling: Boolean) {
-        mActions[0] = buildShuffleAction(context, isShuffling)
+    fun setFavorite(context: Context, isShuffling: Boolean) {
+        mActions[0] = buildFavoriteAction(context, isShuffling)
     }
 
     fun setPlaying(context: Context, isPlaying: Boolean) {
@@ -73,13 +72,13 @@ class PlayerNotification private constructor(
         return buildAction(context, ACTION_PLAY_PAUSE, drawableRes)
     }
 
-    private fun buildShuffleAction(
+    private fun buildFavoriteAction(
         context: Context,
-        isShuffled: Boolean
+        isFavorite: Boolean
     ): NotificationCompat.Action {
-        val drawableRes = if (isShuffled) R.drawable.ic_shuffle_active_notification else R.drawable.ic_shuffle_inactive_notification
+        val drawableRes = if (isFavorite) R.drawable.ic_heart_filled_notification else R.drawable.ic_heart_outliine_notification
 
-        return buildAction(context, ACTION_SHUFFLE, drawableRes)
+        return buildAction(context, ACTION_FAVORITE, drawableRes)
     }
 
     private fun buildAction(
@@ -103,7 +102,7 @@ class PlayerNotification private constructor(
         const val NOTIFICATION_ID = 0xA001
         const val REQUEST_CODE = 0xB001
 
-        const val ACTION_SHUFFLE = BuildConfig.APPLICATION_ID + ".action.SHUFFLE"
+        const val ACTION_FAVORITE = BuildConfig.APPLICATION_ID + ".action.FAVORITE"
         const val ACTION_SKIP_PREV = BuildConfig.APPLICATION_ID + ".action.PREV"
         const val ACTION_PLAY_PAUSE = BuildConfig.APPLICATION_ID + ".action.PLAY_PAUSE"
         const val ACTION_SKIP_NEXT = BuildConfig.APPLICATION_ID + ".action.NEXT"

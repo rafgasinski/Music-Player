@@ -1,30 +1,34 @@
 package com.example.musicplayer.viewmodels
 
 import android.app.Application
-import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.viewModelScope
+import android.util.Log
+import androidx.lifecycle.*
 import com.example.musicplayer.db.FavoriteDatabase
 import com.example.musicplayer.db.entities.FavoriteTable
 import com.example.musicplayer.db.repositories.FavoriteTableRepository
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.collect
 
 class FavoriteTracksViewModel(application: Application): AndroidViewModel(application) {
-    val repository : FavoriteTableRepository
 
-    var allFavoriteTracksId: LiveData<List<FavoriteTable>>
+    val allFavoriteTracksId = MutableLiveData<List<FavoriteTable>>()
+
+    private val repository : FavoriteTableRepository
+    private val favoriteDao = FavoriteDatabase.getDatabase(application).favoriteTableDao()
 
     init {
-        val favoriteDao = FavoriteDatabase.getDatabase(application).favoriteTableDao()
         repository = FavoriteTableRepository(favoriteDao)
-        allFavoriteTracksId = repository.selectAll
+
+        viewModelScope.launch {
+            repository.selectAllFlow().collect {
+                allFavoriteTracksId.postValue(it)
+            }
+        }
     }
 
     fun addMusic(trackId: Long){
         val favorite = FavoriteTable(id = 0, trackId = trackId)
-        viewModelScope.launch(Dispatchers.IO) { repository.addItem(favorite) }
+        viewModelScope.launch { repository.addItem(favorite) }
     }
 
     fun deleteMusic(musicID: Long){

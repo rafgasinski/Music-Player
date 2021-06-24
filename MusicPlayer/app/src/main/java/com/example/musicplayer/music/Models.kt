@@ -94,8 +94,6 @@ data class Album(
         }
 
         mTracks.sortBy { it.positionInAlbum }
-        // Until further notice:
-        artistName = mTracks[0].artistName
     }
 
     private fun albumHash(): Int {

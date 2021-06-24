@@ -1,10 +1,10 @@
 package com.example.musicplayer.db.dao
 
-import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
 import com.example.musicplayer.db.entities.FavoriteTable
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface FavoriteTableDao {
@@ -15,7 +15,7 @@ interface FavoriteTableDao {
     suspend fun deleteFavorite(id: Long)
 
     @Query("SELECT * FROM favorites")
-    fun selectAll() : LiveData<List<FavoriteTable>>
+    fun selectAllFlow() : Flow<List<FavoriteTable>>
 
     @Query("SELECT * FROM favorites WHERE trackId=:id")
     suspend fun musicExist(id : Long) : FavoriteTable

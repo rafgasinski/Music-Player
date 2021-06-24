@@ -1,10 +1,10 @@
 package com.example.musicplayer.db.dao
 
-import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
 import com.example.musicplayer.db.entities.AlbumTable
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface AlbumTableDao {
@@ -15,7 +15,7 @@ interface AlbumTableDao {
     suspend fun deleteAlbum(id: Long)
 
     @Query("SELECT * FROM albums")
-    fun selectAll() : LiveData<List<AlbumTable>>
+    fun selectAllFlow() : Flow<List<AlbumTable>>
 
     @Query("SELECT * FROM albums WHERE albumId=:id")
     suspend fun albumExist(id : Long) : AlbumTable

@@ -6,7 +6,7 @@ import com.example.musicplayer.db.entities.AlbumTable
 
 class AlbumTableRepository(private val albumTableDao: AlbumTableDao) {
 
-    val selectAll : LiveData<List<AlbumTable>> = albumTableDao.selectAll()
+    fun selectAllFlow() = albumTableDao.selectAllFlow()
 
     suspend fun addItem(albumTable : AlbumTable){
         albumTableDao.insertAlbum(albumTable)
