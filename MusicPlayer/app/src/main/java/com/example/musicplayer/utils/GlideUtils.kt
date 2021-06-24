@@ -49,7 +49,7 @@ inline fun <reified T : BaseModel> ImageView.load(
     @DrawableRes placeholderDrawable: Int,
 ) {
 
-    val reqOpt = RequestOptions.fitCenterTransform().diskCacheStrategy(DiskCacheStrategy.RESOURCE).override(this.width, this.height)
+    val reqOpt = RequestOptions.fitCenterTransform().diskCacheStrategy(DiskCacheStrategy.NONE).override(this.width, this.height)
 
     if(data is Album){
         Glide.with(context).load(data.coverUri).transition(DrawableTransitionOptions().crossFade()).apply(reqOpt)
@@ -63,7 +63,7 @@ inline fun <reified T : BaseModel> ImageView.loadAndGetVibrantColor(
     @DrawableRes placeholderDrawable: Int,
 ) {
 
-    val reqOpt = RequestOptions.fitCenterTransform().diskCacheStrategy(DiskCacheStrategy.NONE).override(this.width, this.height)
+    val reqOpt = RequestOptions.fitCenterTransform().fitCenter().diskCacheStrategy(DiskCacheStrategy.NONE).override(2015, 2015)
     val preferencesManager = PreferencesManager.getInstance()
 
     if(data is Album){

@@ -74,7 +74,7 @@ class PreferencesManager private constructor(context: Context) :
             }
         }
 
-    private val mLiveGradientColor = MutableLiveData(accentColor)
+    private val mLiveGradientColor = MutableLiveData(gradientAccentColor)
     val liveGradientColor: LiveData<Int> get() = mLiveGradientColor
 
     private val mLiveClickedHeartTrackId = MutableLiveData(Long.MIN_VALUE)

@@ -7,7 +7,6 @@
     <string name="tracks">Tracks</string>
     <string name="playlist">Playlist</string>
     <string name="artists">Artists</string>
-    <string name="no_tracks_found">No Tracks Found :(</string>
     <string name="favorites">Favorites</string>
     <string name="album_cover">Album Cover</string>
     <string name="shuffle">Shuffle</string>
