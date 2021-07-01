@@ -51,8 +51,8 @@ class PlayerNotification private constructor(
         }
     }
 
-    fun setFavorite(context: Context, isShuffling: Boolean) {
-        mActions[0] = buildFavoriteAction(context, isShuffling)
+    fun setFavorite(context: Context, isFavorite: Boolean) {
+        mActions[0] = buildFavoriteAction(context, isFavorite)
     }
 
     fun setPlaying(context: Context, isPlaying: Boolean) {

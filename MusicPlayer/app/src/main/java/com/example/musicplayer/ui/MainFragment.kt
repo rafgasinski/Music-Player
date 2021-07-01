@@ -73,7 +73,6 @@ class MainFragment : Fragment() {
                     }
                 } else {
                     toast?.cancel()
-                    activity?.window?.statusBarColor = ContextCompat.getColor(requireContext(), R.color.aboveBackground)
                     navController.navigateUp()
                 }
             }

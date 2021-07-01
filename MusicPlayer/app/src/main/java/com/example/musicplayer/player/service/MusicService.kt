@@ -18,7 +18,6 @@ import com.example.musicplayer.music.Parent
 import com.example.musicplayer.music.Track
 import com.example.musicplayer.player.state.LoopMode
 import com.example.musicplayer.player.state.PlayerStateManager
-import com.example.musicplayer.utils.PreferencesManager
 import com.example.musicplayer.utils.getSystemServiceSafe
 import com.google.android.exoplayer2.*
 import com.google.android.exoplayer2.audio.AudioAttributes
@@ -36,7 +35,7 @@ import kotlinx.coroutines.flow.conflate
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.takeWhile
 
-class MusicService : Service(), Player.Listener, PlayerStateManager.Callback, PreferencesManager.Callback {
+class MusicService : Service(), Player.Listener, PlayerStateManager.Callback {
     private lateinit var player: SimpleExoPlayer
     private lateinit var mediaSession: MediaSessionCompat
     private lateinit var connector: PlayerSessionConnection
@@ -186,6 +185,13 @@ class MusicService : Service(), Player.Listener, PlayerStateManager.Callback, Pr
         }
     }
 
+    override fun onFavoriteUpdate(isFavorite: Boolean, favoriteTrackId: Long?) {
+        if(favoriteTrackId == playerManager.track?.id){
+            notification.setFavorite(this, isFavorite)
+            startForegroundOrNotify()
+        }
+    }
+
     override fun onLoopUpdate(loopMode: LoopMode) {
         player.repeatMode = if (loopMode == LoopMode.TRACK) {
             Player.REPEAT_MODE_ONE
@@ -275,9 +281,9 @@ class MusicService : Service(), Player.Listener, PlayerStateManager.Callback, Pr
                     )
                 }
 
-                PlayerNotification.ACTION_FAVORITE -> playerManager.setShuffling(
-                    !playerManager.isShuffling, keepSong = true
-                )
+                PlayerNotification.ACTION_FAVORITE -> {
+                    playerManager.setFavorite(!playerManager.isFavorite, playerManager.track?.id)
+                }
 
                 PlayerNotification.ACTION_SKIP_PREV -> playerManager.prev(true)
                 PlayerNotification.ACTION_SKIP_NEXT -> playerManager.next()

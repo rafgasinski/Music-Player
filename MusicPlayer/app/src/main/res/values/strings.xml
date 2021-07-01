@@ -22,6 +22,7 @@
     <string name="loop_current_track">Loop Current Track</string>
     <string name="placeholder_artist">Unknown Artist</string>
     <string name="placeholder_album">Unknown Album</string>
+    <string name="music_placeholder">Music</string>
     <string name="description_album_cover">Album Cover For %s</string>
     <string name="play_tracks_from_album">Play Tracks From %s</string>
     <string name="channel_id">Music Player</string>
@@ -31,6 +32,12 @@
     <string name="album_by">Album by %s</string>
     <string name="playing_from">PLAYING FROM %s</string>
     <string name="playing_tracks_by">PLAYING TRACKS BY</string>
-    <string name="artists_tracks_count">%d tracks</string>
-    <string name="artists_one_track">%d track</string>
+    <string name="tracks_count">%d tracks</string>
+    <string name="one_track">%d track</string>
+    <string name="favorite_tracks">Favorite tracks</string>
+    <string name="player_playing_name">%s…</string>
+    <string name="delete_from_favorite_tracks">Delete from Favorite\ntracks?</string>
+    <string name="delete">Delete</string>
+    <string name="cancel">Cancel</string>
+    <string name="no_favorites_tracks_or_albums">No favorite tracks\nor albums</string>
 </resources>

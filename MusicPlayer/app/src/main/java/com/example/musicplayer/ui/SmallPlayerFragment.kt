@@ -9,13 +9,12 @@ import android.view.animation.AnimationUtils
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.example.musicplayer.R
 import com.example.musicplayer.databinding.FragmentSmallPlayerBinding
 import com.example.musicplayer.utils.OnSwipeListener
 import com.example.musicplayer.utils.PreferencesManager
-import com.example.musicplayer.viewmodels.FavoriteTracksViewModel
+import com.example.musicplayer.viewmodels.FavoritesViewModel
 import com.example.musicplayer.viewmodels.PlayerViewModel
 
 
@@ -26,7 +25,7 @@ class SmallPlayerFragment : Fragment() {
     private var isFavorite : Boolean = false
 
     private val playerModel: PlayerViewModel by activityViewModels()
-    private val favoriteTracksModel: FavoriteTracksViewModel by activityViewModels()
+    private val favoritesModel: FavoritesViewModel by activityViewModels()
 
     val preferencesManager = PreferencesManager.getInstance()
 
@@ -44,7 +43,6 @@ class SmallPlayerFragment : Fragment() {
 
         binding.root.setOnTouchListener(object: OnSwipeListener(inflater.context) {
             override fun onSwipeLeft() {
-
                 val animation = AnimationUtils.loadAnimation(inflater.context, R.anim.on_swipe_left_small_player)
                 animation.setAnimationListener(object : Animation.AnimationListener {
                     override fun onAnimationStart(arg0: Animation) {
@@ -63,7 +61,6 @@ class SmallPlayerFragment : Fragment() {
             }
 
             override fun onSwipeRight() {
-
                 val animation = AnimationUtils.loadAnimation(inflater.context, R.anim.on_swipe_right_small_player)
                 animation.setAnimationListener(object : Animation.AnimationListener {
                     override fun onAnimationStart(arg0: Animation) {
@@ -81,12 +78,11 @@ class SmallPlayerFragment : Fragment() {
                 binding.smallPlayerArtist.startAnimation(animation)
             }
 
-            override fun onSwipeTop() {
-                findNavController().navigate(
-                    MainFragmentDirections.actionMainFragmentToPlayerFragment()
-                )
-            }
+            override fun onClick() {
+                super.onClick()
 
+                findNavController().navigate(MainFragmentDirections.actionMainFragmentToPlayerFragment())
+            }
         })
 
         binding.smallPlayerTitle.isSelected = true
@@ -97,11 +93,11 @@ class SmallPlayerFragment : Fragment() {
                 binding.track = track
                 binding.smallPlayerProgress.max = track.seconds.toInt()
 
-                favoriteTracksModel.musicExist(track.id).observe(viewLifecycleOwner, Observer { x ->
-                    isFavorite = if(x != null){
+                favoritesModel.allFavoriteTracksIds.observe(viewLifecycleOwner, { favoritesTracksIds ->
+                    isFavorite = if(favoritesTracksIds.any{ it.musicId == track.id }) {
                         binding.favoriteCheckbox.setImageResource(R.drawable.ic_heart_filled)
                         true
-                    } else{
+                    } else {
                         binding.favoriteCheckbox.setImageResource(R.drawable.ic_heart_outline)
                         false
                     }
@@ -119,16 +115,14 @@ class SmallPlayerFragment : Fragment() {
 
         binding.favoriteCheckbox.setOnClickListener{
             isFavorite = if(isFavorite){
-                playerModel.track.value?.let { track -> favoriteTracksModel.deleteMusic(track.id) }
+                favoritesModel.setFavorite(isFavorite = false, playerModel.track.value?.id)
                 binding.favoriteCheckbox.setImageResource(R.drawable.ic_heart_outline)
                 false
             } else{
-                playerModel.track.value?.let { track -> favoriteTracksModel.addMusic(track.id) }
+                favoritesModel.setFavorite(isFavorite = true, playerModel.track.value?.id)
                 binding.favoriteCheckbox.setImageResource(R.drawable.ic_heart_filled)
                 true
             }
-
-            preferencesManager.clickedHeartTrackId = playerModel.track.value?.id ?: Long.MIN_VALUE
         }
 
 

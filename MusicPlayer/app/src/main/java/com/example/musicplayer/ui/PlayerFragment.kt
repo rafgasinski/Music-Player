@@ -1,36 +1,30 @@
 package com.example.musicplayer.ui
 
-import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
-import android.util.Log
 import android.view.*
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
 import android.widget.SeekBar
-import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import com.example.musicplayer.R
 import com.example.musicplayer.databinding.FragmentPlayerBinding
 import com.example.musicplayer.music.MusicUtils
 import com.example.musicplayer.player.state.LoopMode
 import com.example.musicplayer.player.state.QueueConstructor
-import com.example.musicplayer.utils.OnSwipeListener
-import com.example.musicplayer.utils.PreferencesManager
-import com.example.musicplayer.utils.memberBinding
-import com.example.musicplayer.viewmodels.FavoriteTracksViewModel
+import com.example.musicplayer.ui.artists.ArtistsFragmentDirections
+import com.example.musicplayer.utils.*
+import com.example.musicplayer.viewmodels.FavoritesViewModel
 import com.example.musicplayer.viewmodels.PlayerViewModel
-import kotlin.math.roundToInt
 
 class PlayerFragment : Fragment() {
 
     private val playerModel: PlayerViewModel by activityViewModels()
-    private val favoriteTracksModel : FavoriteTracksViewModel by activityViewModels()
+    private val favoritesModel : FavoritesViewModel by activityViewModels()
 
     private val binding by memberBinding(FragmentPlayerBinding::inflate) {
         trackTitle.isSelected = false
@@ -38,15 +32,26 @@ class PlayerFragment : Fragment() {
 
     private var isFavorite : Boolean = false
 
+    private var gradientLoaded : Boolean = false
+    private var gradientBackground : GradientDrawable? = null
+
     val preferencesManager = PreferencesManager.getInstance()
+
+    override fun onPause() {
+        super.onPause()
+        gradientLoaded = true
+    }
+
+    override fun onResume() {
+        super.onResume()
+        binding.gradientView.background = gradientBackground
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-
-        activity?.window?.statusBarColor = ContextCompat.getColor(inflater.context, R.color.background)
 
         binding.lifecycleOwner = this
         binding.playerModel = playerModel
@@ -57,8 +62,9 @@ class PlayerFragment : Fragment() {
 
         binding.backButton.setOnClickListener {
             findNavController().navigateUp()
-            activity?.window?.statusBarColor = ContextCompat.getColor(inflater.context, R.color.aboveBackground)
         }
+
+        binding.playerInfo.setPadding(0, getStatusBarHeight(requireContext()), 0, 0)
 
         playerModel.track.observe(viewLifecycleOwner) { track ->
             if (track != null) {
@@ -89,15 +95,34 @@ class PlayerFragment : Fragment() {
                     else -> {}
                 }
 
-                favoriteTracksModel.musicExist(track.id).observe(viewLifecycleOwner, { x ->
-                    isFavorite = if(x != null){
+                favoritesModel.allFavoriteTracksIds.observe(viewLifecycleOwner, { favoritesTracksIds ->
+                    isFavorite = if(favoritesTracksIds.any{ it.musicId == track.id }) {
                         binding.favoriteCheckbox.setImageResource(R.drawable.ic_heart_filled)
                         true
-                    } else{
+                    } else {
                         binding.favoriteCheckbox.setImageResource(R.drawable.ic_heart_outline)
                         false
                     }
                 })
+
+                binding.playerPlayingName.viewTreeObserver.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
+
+                    override fun onGlobalLayout() {
+                        binding.playerPlayingName.viewTreeObserver.removeOnGlobalLayoutListener(this)
+
+                        if(isEllipsized(binding.playerPlayingName)) {
+                            val ellipsizedText = binding.playerPlayingName.text
+                                .subSequence(binding.playerPlayingName.layout.getEllipsisStart(0), binding.playerPlayingName.text.length)
+
+                            val textToInsert = binding.playerPlayingName.text.removeSuffix(ellipsizedText).replace("[ ,.;:/-]*$".toRegex(), "")
+                            binding.playerPlayingName.text = getString(R.string.player_playing_name, textToInsert)
+                        }
+                    }
+                })
+
+                binding.trackArtist.setOnClickListener {
+                    findNavController().navigate(ArtistsFragmentDirections.actionArtistsFragmentToClickedArtistFragment(track.artist.id))
+                }
             }
         }
 
@@ -132,7 +157,7 @@ class PlayerFragment : Fragment() {
                     override fun onAnimationStart(arg0: Animation) {
                         binding.trackTitle.isSelected = false
                         binding.trackArtist.isSelected = false
-                        playerModel.skipPrev(true)
+                        playerModel.skipPrev(false)
                     }
                     override fun onAnimationRepeat(arg0: Animation) {}
                     override fun onAnimationEnd(arg0: Animation) {
@@ -141,7 +166,9 @@ class PlayerFragment : Fragment() {
                     }
                 })
 
-                binding.trackCover.startAnimation(animation)
+                if(playerModel.currentIndex.value != 0 || playerModel.loopMode.value != LoopMode.NONE){
+                    binding.trackCover.startAnimation(animation)
+                }
             }
         })
 
@@ -178,7 +205,13 @@ class PlayerFragment : Fragment() {
                     }
                 })
 
-            binding.trackCover.startAnimation(animation)
+            playerModel.positionAsProgress.value?.let{ position ->
+                if((playerModel.currentIndex.value == 0 && playerModel.loopMode.value == LoopMode.NONE) || position >= 3){
+                    playerModel.skipPrev(true)
+                } else {
+                    binding.trackCover.startAnimation(animation)
+                }
+            }
         }
 
         binding.seekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener{
@@ -243,54 +276,38 @@ class PlayerFragment : Fragment() {
         }
 
         preferencesManager.liveGradientColor.observe(viewLifecycleOwner, {
-            val gradient : GradientDrawable =
-                if(it != ResourcesCompat.getColor(resources, R.color.accent, null)){
-                    activity?.window?.statusBarColor = manipulateColor(it, 0.6f)
-                    GradientDrawable(
-                        GradientDrawable.Orientation.TOP_BOTTOM, intArrayOf(manipulateColor(it, 0.6f), manipulateColor(it, 0.5f),
-                            manipulateColor(it, 0.4f), ResourcesCompat.getColor(resources, R.color.background, null))
-                    )
-                } else {
-                    activity?.window?.statusBarColor = manipulateColor(it, 0.8f)
-
-                    GradientDrawable(
-                        GradientDrawable.Orientation.TOP_BOTTOM, intArrayOf(manipulateColor(it, 0.8f),
-                            manipulateColor(it, 0.5f), ResourcesCompat.getColor(resources, R.color.background, null))
-                    )
-                }
-            gradient.cornerRadius = 0f
-            binding.gradientView.background = gradient
+            if(!gradientLoaded) {
+                val gradient : GradientDrawable =
+                    if(it != ResourcesCompat.getColor(resources, R.color.accent, null)){
+                        GradientDrawable(
+                            GradientDrawable.Orientation.TOP_BOTTOM, intArrayOf(manipulateColor(it, 0.6f), manipulateColor(it, 0.5f),
+                                manipulateColor(it, 0.4f), ResourcesCompat.getColor(resources, R.color.background, null))
+                        )
+                    } else {
+                        GradientDrawable(
+                            GradientDrawable.Orientation.TOP_BOTTOM, intArrayOf(manipulateColor(it, 0.9f),
+                                manipulateColor(it, 0.6f), ResourcesCompat.getColor(resources, R.color.background, null))
+                        )
+                    }
+                gradient.cornerRadius = 0f
+                binding.gradientView.background = gradient
+                gradientBackground = gradient
+            }
         })
 
         binding.favoriteCheckbox.setOnClickListener{
             isFavorite = if(isFavorite){
-                playerModel.track.value?.let { track -> favoriteTracksModel.deleteMusic(track.id) }
+                favoritesModel.setFavorite(isFavorite = false, playerModel.track.value?.id)
                 binding.favoriteCheckbox.setImageResource(R.drawable.ic_heart_outline)
                 false
             } else{
-                playerModel.track.value?.let { track -> favoriteTracksModel.addMusic(track.id) }
+                favoritesModel.setFavorite(isFavorite = true, playerModel.track.value?.id)
                 binding.favoriteCheckbox.setImageResource(R.drawable.ic_heart_filled)
                 true
             }
-
-            preferencesManager.clickedHeartTrackId = playerModel.track.value?.id ?: Long.MIN_VALUE
         }
 
-
         return binding.root
-    }
-
-    private fun manipulateColor(color: Int, factor: Float): Int {
-        val a = Color.alpha(color)
-        val r = (Color.red(color) * factor).roundToInt()
-        val g = (Color.green(color) * factor).roundToInt()
-        val b = (Color.blue(color) * factor).roundToInt()
-        return Color.argb(
-            a,
-            r.coerceAtMost(255),
-            g.coerceAtMost(255),
-            b.coerceAtMost(255)
-        )
     }
 
 }

@@ -29,6 +29,29 @@ object MusicUtils {
         )
     }
 
+    fun extractInt(s: String): Int {
+        val num = s.replace("\\D".toRegex(), "")
+        return if (num.isEmpty()) 0 else Integer.parseInt(num)
+    }
+
+    val String.removePrefixes: String get() {
+
+        if (length > 3 && startsWith("a ", true)) {
+            return removeRange(0, 1).replace(" ", "")
+        }
+
+        if (length > 4 && startsWith("an ", true)) {
+            return removeRange(0, 2).replace(" ", "")
+        }
+
+        if (length > 5 && startsWith("the ", true)) {
+            return removeRange(0, 3).replace(" ", "")
+        }
+
+        return this.replace(" ", "")
+
+    }
+
     fun Long.toDuration(): String {
         var duration = DateUtils.formatElapsedTime(this)
 
@@ -38,4 +61,5 @@ object MusicUtils {
 
         return duration
     }
+
 }

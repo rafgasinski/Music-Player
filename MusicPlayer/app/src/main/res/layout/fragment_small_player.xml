@@ -83,9 +83,10 @@
 
         <ImageButton
             android:id="@+id/favorite_checkbox"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:layout_marginEnd="8dp"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:padding="6dp"
+            android:layout_marginEnd="2dp"
             android:scaleType="fitCenter"
             android:src="@drawable/ic_heart_outline"
             android:background="@null"

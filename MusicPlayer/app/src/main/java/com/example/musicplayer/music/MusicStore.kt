@@ -18,6 +18,8 @@ class MusicStore private constructor() {
     private var mTracks = listOf<Track>()
     val tracks: List<Track> get() = mTracks
 
+    var favoriteTracks = listOf<Track>()
+
     var musicAlreadyLoaded = false
         private set
 

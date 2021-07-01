@@ -2,6 +2,7 @@ package com.example.musicplayer.adapters
 
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.example.musicplayer.adapters.ClickedAlbumTracksViewHolder
 import com.example.musicplayer.music.Track
 import com.example.musicplayer.viewmodels.PlayerViewModel
 

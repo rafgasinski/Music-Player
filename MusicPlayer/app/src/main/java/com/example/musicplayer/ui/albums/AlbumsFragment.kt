@@ -8,7 +8,6 @@ import android.view.animation.AnimationUtils
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -45,41 +44,35 @@ class AlbumsFragment : Fragment() {
     ): View {
         _binding = FragmentAlbumsBinding.inflate(inflater, container, false)
 
-        activity?.window?.statusBarColor = ContextCompat.getColor(requireContext(), R.color.aboveBackground)
+        binding.toolbar.apply {
+            title = getString(R.string.albums)
+            inflateMenu(R.menu.menu_layout_switch)
+            setOnMenuItemClickListener{
+                when(it.itemId){
+                    R.id.changeLayout  -> {
+                        if(preferencesManager.albumsUseGridLayout == 1) {
+                            preferencesManager.albumsUseGridLayout = 0
+                            setToLinear(true)
+                        } else {
+                            preferencesManager.albumsUseGridLayout = 1
+                            setToGrid(true)
+                        }
 
-        binding.toolbar.title = getString(R.string.albums)
+                        true
+                    }
 
-        val albumsUseGridLayout = preferencesManager.albumsUseGridLayout
+                    else -> false
+                }
+            }
+        }
 
         albumsGridAdapter.setData(musicStore.albums)
         albumsLinearAdapter.setData(musicStore.albums)
 
-        binding.albumsRecyclerView.apply {
-            if(albumsUseGridLayout == 1) {
-                setToGrid(false)
-            } else {
-                setToLinear(false)
-            }
-        }
-
-        binding.toolbar.setOnMenuItemClickListener{
-            when(it.itemId){
-                R.id.changeToLinear  -> {
-                    preferencesManager.albumsUseGridLayout = 0
-                    setToLinear(true)
-
-                    true
-                }
-
-                R.id.changeToGrid -> {
-                    preferencesManager.albumsUseGridLayout = 1
-                    setToGrid(true)
-
-                    true
-                }
-
-                else -> false
-            }
+        if(preferencesManager.albumsUseGridLayout == 1) {
+            setToGrid(false)
+        } else {
+            setToLinear(false)
         }
 
         return binding.root
@@ -96,11 +89,10 @@ class AlbumsFragment : Fragment() {
         binding.albumsRecyclerView.apply {
             adapter = albumsGridAdapter
             layoutManager = GridLayoutManager(requireContext(), 2)
+            setPadding((6 * scale + 0.5f).toInt(), (14 * scale + 0.5f).toInt(), (6 * scale + 0.5f).toInt(), 0)
         }
 
-        binding.albumsRecyclerView.setPadding((7 * scale + 0.5f).toInt(), (14 * scale + 0.5f).toInt(), (7 * scale + 0.5f).toInt(), 0)
-        binding.toolbar.menu.clear()
-        binding.toolbar.inflateMenu(R.menu.menu_albums_linear)
+        binding.toolbar.menu.getItem(0).icon = ContextCompat.getDrawable(requireContext(), R.drawable.ic_list_view)
     }
 
     private fun setToLinear(animate : Boolean) {
@@ -114,16 +106,14 @@ class AlbumsFragment : Fragment() {
         binding.albumsRecyclerView.apply {
             adapter = albumsLinearAdapter
             layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
+            setPadding(0, (8 * scale + 0.5f).toInt(), 0, (8 * scale + 0.5f).toInt())
         }
 
-        binding.albumsRecyclerView.setPadding(0, (8 * scale + 0.5f).toInt(), 0, (8 * scale + 0.5f).toInt())
-        binding.toolbar.menu.clear()
-        binding.toolbar.inflateMenu(R.menu.menu_albums_grid)
+        binding.toolbar.menu.getItem(0).icon = ContextCompat.getDrawable(requireContext(), R.drawable.ic_grid_view)
     }
 
     private fun navToClickedAlbum(album: Album) {
         findNavController().navigate(AlbumsFragmentDirections.actionAlbumsFragmentToFragmentClickedAlbum(album.id))
     }
-
 
 }

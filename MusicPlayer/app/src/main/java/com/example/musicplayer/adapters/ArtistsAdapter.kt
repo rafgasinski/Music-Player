@@ -5,7 +5,6 @@ import android.widget.Filter
 import android.widget.Filterable
 import androidx.recyclerview.widget.RecyclerView
 import com.example.musicplayer.music.Artist
-import com.example.musicplayer.music.Track
 import java.util.*
 
 class ArtistsAdapter(private val onItemClick: (data: Artist) -> Unit) : RecyclerView.Adapter<ArtistsViewHolder>(), Filterable {

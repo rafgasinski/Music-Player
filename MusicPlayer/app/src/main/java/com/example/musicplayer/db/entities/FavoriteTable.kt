@@ -7,5 +7,6 @@ import androidx.room.PrimaryKey
 data class FavoriteTable(
     @PrimaryKey(autoGenerate = true)
     val id: Int,
-    val trackId: Long
+    val musicId: Long,
+    val isTrack: Boolean
 )

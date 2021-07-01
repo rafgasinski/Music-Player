@@ -1,15 +1,11 @@
 package com.example.musicplayer.ui.albums
 
 import android.annotation.SuppressLint
-import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.animation.Animation
-import android.view.animation.AnimationUtils
-import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
@@ -21,9 +17,12 @@ import com.example.musicplayer.adapters.ClickedAlbumTracksAdapter
 import com.example.musicplayer.databinding.FragmentClickedAlbumBinding
 import com.example.musicplayer.music.MusicStore
 import com.example.musicplayer.utils.PreferencesManager
-import com.example.musicplayer.viewmodels.FavoriteAlbumsViewModel
+import com.example.musicplayer.utils.getStatusBarHeight
+import com.example.musicplayer.utils.manipulateColor
+import com.example.musicplayer.viewmodels.FavoritesViewModel
 import com.example.musicplayer.viewmodels.PlayerViewModel
-import kotlin.math.roundToInt
+import com.google.android.material.appbar.AppBarLayout.OnOffsetChangedListener
+import kotlin.math.abs
 
 
 class ClickedAlbumFragment : Fragment() {
@@ -31,16 +30,30 @@ class ClickedAlbumFragment : Fragment() {
     private val binding get() = _binding!!
 
     private val playerModel: PlayerViewModel by activityViewModels()
-    private val favoriteAlbumsModel : FavoriteAlbumsViewModel by activityViewModels()
+    private val favoritesModel : FavoritesViewModel by activityViewModels()
 
     private val args : ClickedAlbumFragmentArgs by navArgs()
 
     val preferencesManager = PreferencesManager.getInstance()
 
+    private var gradientTopColor : Int = 0
     private var isFavorite : Boolean = false
+
+    private var gradientLoaded : Boolean = false
+    private var gradientBackground : GradientDrawable? = null
 
     private val clickedAlbumTracksAdapter: ClickedAlbumTracksAdapter by lazy {
         ClickedAlbumTracksAdapter(playerModel)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        gradientLoaded = true
+    }
+
+    override fun onResume() {
+        super.onResume()
+        binding.gradientView.background = gradientBackground
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -54,49 +67,49 @@ class ClickedAlbumFragment : Fragment() {
 
         binding.album = currentAlbum
 
-        binding.toolbar.setNavigationOnClickListener {
-            findNavController().navigateUp()
-        }
+        clickedAlbumTracksAdapter.setData(currentAlbum.tracks)
 
-        favoriteAlbumsModel.albumExist(currentAlbum.id).observe(viewLifecycleOwner, { album ->
-            if(album == null){
-                isFavorite = false
-                binding.toolbar.menu.getItem(0).icon = ContextCompat.getDrawable(requireContext(), R.drawable.ic_heart_outline)
+        binding.toolbar.apply {
+            setNavigationOnClickListener {
+                findNavController().navigateUp()
             }
-            else{
-                isFavorite = true
-                binding.toolbar.menu.getItem(0).icon = ContextCompat.getDrawable(requireContext(), R.drawable.ic_heart_filled)
-            }
-
-            preferencesManager.clickedHeartAlbumId = currentAlbum.id
-        })
-
-        binding.toolbar.setOnMenuItemClickListener {
-            when (it.itemId) {
-                R.id.addTracksListToFav -> {
-                    if(isFavorite){
-                        favoriteAlbumsModel.deleteAlbum(currentAlbum.id)
-                        isFavorite = false
-                        binding.toolbar.menu.getItem(0).icon = ContextCompat.getDrawable(requireContext(), R.drawable.ic_heart_outline)
+            inflateMenu(R.menu.menu_clicked_album)
+            setPadding(0, getStatusBarHeight(requireContext()), 0, 0)
+            setOnMenuItemClickListener {
+                when (it.itemId) {
+                    R.id.addTracksListToFav -> {
+                        if(isFavorite) {
+                            favoritesModel.deleteAlbum(currentAlbum.id)
+                            isFavorite = false
+                            binding.toolbar.menu.getItem(0).icon = ContextCompat.getDrawable(requireContext(), R.drawable.ic_heart_outline)
+                        } else {
+                            favoritesModel.addAlbum(currentAlbum.id)
+                            isFavorite = true
+                            binding.toolbar.menu.getItem(0).icon = ContextCompat.getDrawable(requireContext(), R.drawable.ic_heart_filled)
+                        }
+                        true
                     }
-                    else{
-                        favoriteAlbumsModel.addAlbum(currentAlbum.id)
-                        isFavorite = true
-                        binding.toolbar.menu.getItem(0).icon = ContextCompat.getDrawable(requireContext(), R.drawable.ic_heart_filled)
-                    }
-                    true
+
+                    else -> false
+
                 }
-
-                else -> false
-
             }
         }
+
+        binding.relativeLayoutClickedAlbum.setPadding(0, getStatusBarHeight(requireContext()), 0, 0)
+
+        favoritesModel.allFavoriteAlbumsIds.observe(viewLifecycleOwner, { favoritesTracksIds ->
+            isFavorite = if(favoritesTracksIds.any{ it.musicId == currentAlbum.id }) {
+                binding.toolbar.menu.getItem(0).icon = ContextCompat.getDrawable(requireContext(), R.drawable.ic_heart_filled)
+                true
+            } else {
+                binding.toolbar.menu.getItem(0).icon = ContextCompat.getDrawable(requireContext(), R.drawable.ic_heart_outline)
+                false
+            }
+        })
 
         binding.clickedAlbumTracksRecyclerView.apply {
             adapter = clickedAlbumTracksAdapter
-            setHasFixedSize(true)
-
-            clickedAlbumTracksAdapter.setData(currentAlbum.tracks)
         }
 
         val albumArtists = arrayListOf<String>()
@@ -113,57 +126,51 @@ class ClickedAlbumFragment : Fragment() {
         binding.albumArtists.text = resources.getString(R.string.album_by, albumArtists.toString().replace("[", "").replace("]", ""))
 
         binding.shuffleAlbumButton.setOnClickListener {
-            val animationClick = AnimationUtils.loadAnimation(inflater.context, R.anim.shuffle_button_clicked)
-            it.startAnimation(animationClick)
-
-            animationClick.setAnimationListener(object : Animation.AnimationListener {
-                override fun onAnimationStart(arg0: Animation) {}
-                override fun onAnimationRepeat(arg0: Animation) {}
-                override fun onAnimationEnd(arg0: Animation) {
-                    val animationReset = AnimationUtils.loadAnimation(inflater.context, R.anim.shuffle_button_reset)
-                    it.startAnimation(animationReset)
-                }
-            })
-
             playerModel.playAlbum(currentAlbum, true)
         }
 
+        binding.appBarLayout.addOnOffsetChangedListener(OnOffsetChangedListener { appBarLayout, verticalOffset ->
+            if(abs(verticalOffset) - appBarLayout.totalScrollRange == 0){
+                binding.toolbarTitle.alpha = 1f
+                binding.toolbar.setBackgroundColor(gradientTopColor)
+            } else {
+                val offsetFactor = (abs(verticalOffset).toFloat() / appBarLayout.totalScrollRange.toFloat())
+                val scaleFactor = 1f - offsetFactor * 0.8f
+                binding.albumCover.scaleX = scaleFactor
+                binding.albumCover.scaleY = scaleFactor
+                if(scaleFactor < 0.8f) {
+                    binding.albumCover.alpha = scaleFactor + 0.2f
+                }
+
+                binding.toolbarTitle.alpha = 0f
+                binding.toolbar.background = null
+            }
+        })
+
         preferencesManager.liveGradientColor.observe(viewLifecycleOwner, {
-            binding.gradientView.alpha = 0f
-            binding.gradientView.animate().setDuration(1150).alpha(1f).withStartAction {
+            if(!gradientLoaded) {
                 val gradient : GradientDrawable =
                     if(it != ResourcesCompat.getColor(resources, R.color.accent, null)){
+                        gradientTopColor = manipulateColor(it, 0.6f)
                         GradientDrawable(
                             GradientDrawable.Orientation.TOP_BOTTOM, intArrayOf(manipulateColor(it, 0.6f), manipulateColor(it, 0.5f),
                                 manipulateColor(it, 0.4f), ResourcesCompat.getColor(resources, R.color.background, null))
                         )
                     } else {
+                        gradientTopColor = manipulateColor(it, 0.9f)
                         GradientDrawable(
-                            GradientDrawable.Orientation.TOP_BOTTOM, intArrayOf(manipulateColor(it, 0.8f),
-                                manipulateColor(it, 0.5f), ResourcesCompat.getColor(resources, R.color.background, null))
+                            GradientDrawable.Orientation.TOP_BOTTOM, intArrayOf(manipulateColor(it, 0.9f),
+                                manipulateColor(it, 0.6f), ResourcesCompat.getColor(resources, R.color.background, null))
                         )
                     }
 
                 gradient.cornerRadius = 0f
                 binding.gradientView.background = gradient
+                gradientBackground = gradient
             }
         })
 
         return binding.root
     }
-
-    private fun manipulateColor(color: Int, factor: Float): Int {
-        val a = Color.alpha(color)
-        val r = (Color.red(color) * factor).roundToInt()
-        val g = (Color.green(color) * factor).roundToInt()
-        val b = (Color.blue(color) * factor).roundToInt()
-        return Color.argb(
-            a,
-            r.coerceAtMost(255),
-            g.coerceAtMost(255),
-            b.coerceAtMost(255)
-        )
-    }
-
 
 }

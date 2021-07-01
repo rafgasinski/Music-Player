@@ -4,9 +4,9 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
-        android:id="@+id/changeToLinear"
-        android:icon="@drawable/ic_list_view"
-        android:title="@string/search"
+        android:id="@+id/addTracksListToFav"
+        android:icon="@drawable/ic_heart_outline"
+        android:title="@string/set_favorite"
         app:iconTint="@color/white"
         app:showAsAction="always|collapseActionView"
         tools:ignore="AlwaysShowAction" />

@@ -1,15 +1,14 @@
 package com.example.musicplayer.ui.artists
 
+import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.animation.Animation
-import android.view.animation.AnimationUtils
 import androidx.core.content.ContextCompat
+import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.example.musicplayer.R
@@ -18,7 +17,8 @@ import com.example.musicplayer.databinding.FragmentClickedArtistBinding
 import com.example.musicplayer.music.MusicStore
 import com.example.musicplayer.player.state.QueueConstructor
 import com.example.musicplayer.utils.PreferencesManager
-
+import com.example.musicplayer.utils.getStatusBarHeight
+import com.example.musicplayer.utils.manipulateColor
 import com.example.musicplayer.viewmodels.PlayerViewModel
 import com.google.android.material.appbar.AppBarLayout.OnOffsetChangedListener
 import kotlin.math.abs
@@ -35,7 +35,7 @@ class ClickedArtistFragment : Fragment() {
     val preferencesManager = PreferencesManager.getInstance()
 
     private val clickedArtistAdapter: ClickedArtistTracksAdapter by lazy {
-        ClickedArtistTracksAdapter(playerModel)
+        ClickedArtistTracksAdapter(playerModel, onItemClick = { playerModel.playTrack(it, QueueConstructor.IN_ARTIST.toInt()) })
     }
 
     override fun onCreateView(
@@ -49,22 +49,33 @@ class ClickedArtistFragment : Fragment() {
         binding.artist = currentArtist
 
         binding.appBarLayout.addOnOffsetChangedListener(OnOffsetChangedListener { appBarLayout, verticalOffset ->
-            if (abs(verticalOffset) - appBarLayout.totalScrollRange == 0) {
-                binding.artistName.alpha = 0f
-                binding.toolbarTitle.animate().setDuration(400).alpha(1f).withStartAction {
-                    activity?.window?.statusBarColor = ContextCompat.getColor(requireContext(), R.color.aboveBackground)
-                }
+            if(abs(verticalOffset) - appBarLayout.totalScrollRange == 0){
+                binding.toolbarTitle.alpha = 1f
+                binding.toolbar.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.aboveBackground))
             } else {
                 binding.toolbarTitle.alpha = 0f
-                binding.artistName.animate().setDuration(400).alpha(1f).withStartAction {
-                    activity?.window?.statusBarColor = ContextCompat.getColor(requireContext(), R.color.accent)
+                binding.toolbar.background = null
+
+                val offsetFactor = (abs(verticalOffset).toFloat() / appBarLayout.totalScrollRange.toFloat())
+                val scaleFactor = 1f - offsetFactor * 0.5f
+                binding.artistName.scaleX = scaleFactor
+                binding.artistName.scaleY = scaleFactor
+                if(scaleFactor < 0.8f) {
+                    binding.artistName.alpha = scaleFactor + 0.2f
                 }
+
+                binding.toolbarTitle.alpha = 0f
+                binding.toolbar.background = null
             }
         })
 
-        binding.toolbar.setNavigationOnClickListener {
-            activity?.window?.statusBarColor = ContextCompat.getColor(requireContext(), R.color.aboveBackground)
-            findNavController().navigateUp()
+        binding.artistName.setPadding(0, getStatusBarHeight(requireContext()), 0, 0)
+
+        binding.toolbar.apply {
+            setNavigationOnClickListener {
+                findNavController().navigateUp()
+            }
+            setPadding(0, getStatusBarHeight(requireContext()), 0, 0)
         }
 
         binding.clickedArtistTracksRecyclerView.apply {
@@ -75,20 +86,13 @@ class ClickedArtistFragment : Fragment() {
         }
 
         binding.shuffleArtistButton.setOnClickListener {
-            val animationClick = AnimationUtils.loadAnimation(inflater.context, R.anim.shuffle_button_clicked)
-            it.startAnimation(animationClick)
-
-            animationClick.setAnimationListener(object : Animation.AnimationListener {
-                override fun onAnimationStart(arg0: Animation) {}
-                override fun onAnimationRepeat(arg0: Animation) {}
-                override fun onAnimationEnd(arg0: Animation) {
-                    val animationReset = AnimationUtils.loadAnimation(inflater.context, R.anim.shuffle_button_reset)
-                    it.startAnimation(animationReset)
-                }
-            })
-
             playerModel.playArtist(currentArtist, true)
         }
+
+        binding.appBarLayout.background = GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM, intArrayOf(
+            ResourcesCompat.getColor(resources, R.color.accent, null),
+            manipulateColor(ResourcesCompat.getColor(resources, R.color.accent, null), 0.6f),
+            ResourcesCompat.getColor(resources, R.color.background, null)))
 
         return binding.root
     }

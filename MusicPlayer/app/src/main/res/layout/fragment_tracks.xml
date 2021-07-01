@@ -13,13 +13,12 @@
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbar"
             style="@style/Toolbar.Style"
-            app:layout_scrollFlags="scroll|enterAlways"
             tools:menu="@menu/menu_tracks_fragment"
             app:theme="@style/ToolbarTheme"
-            tools:title="@string/all_tracks"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            tools:title="@string/all_tracks"/>
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/tracks_recycler_view"

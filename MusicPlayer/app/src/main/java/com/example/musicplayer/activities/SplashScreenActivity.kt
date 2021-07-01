@@ -14,6 +14,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.example.musicplayer.R
 import com.example.musicplayer.databinding.ActivitySplashBinding
 import com.example.musicplayer.music.MusicStore
+import com.example.musicplayer.utils.getStatusBarHeight
 import com.example.musicplayer.viewmodels.SplashScreenViewModel
 import com.google.android.material.snackbar.Snackbar
 
@@ -33,8 +34,6 @@ class SplashScreenActivity : AppCompatActivity() {
 
         binding = ActivitySplashBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
-        window.statusBarColor = ContextCompat.getColor(this, R.color.background)
 
         viewModel.doShowGrantPromp.observe(this) { doShowGrantPromp ->
             if (doShowGrantPromp) {

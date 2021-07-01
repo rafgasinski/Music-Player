@@ -30,7 +30,6 @@ class Binder<T : ViewDataBinding>(
 
         val binding = fragmentBinding
 
-        // If the fragment is already initialized, then just return that.
         if (binding != null) {
             return binding
         }
@@ -41,7 +40,6 @@ class Binder<T : ViewDataBinding>(
             "Fragment views are destroyed."
         }
 
-        // Otherwise create the binding and return that.
         return inflate(thisRef.requireContext().inflater).also {
             fragmentBinding = it
         }

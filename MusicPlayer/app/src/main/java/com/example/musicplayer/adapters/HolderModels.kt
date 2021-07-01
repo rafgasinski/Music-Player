@@ -1,6 +1,10 @@
 package com.example.musicplayer.adapters
 
+import android.app.AlertDialog
 import android.content.Context
+import android.content.Intent
+import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
 import androidx.core.content.ContextCompat
 import androidx.databinding.ViewDataBinding
@@ -14,8 +18,9 @@ import com.example.musicplayer.music.Artist
 import com.example.musicplayer.music.BaseModel
 import com.example.musicplayer.music.Track
 import com.example.musicplayer.player.state.QueueConstructor
+import com.example.musicplayer.utils.PreferencesManager
 import com.example.musicplayer.utils.inflater
-import com.example.musicplayer.viewmodels.FavoriteTracksViewModel
+import com.example.musicplayer.viewmodels.FavoritesViewModel
 import com.example.musicplayer.viewmodels.PlayerViewModel
 
 abstract class BaseHolder<T : BaseModel>(
@@ -44,6 +49,7 @@ abstract class BaseHolder<T : BaseModel>(
 
 class TracksViewHolder private constructor(
     private val binding: ItemTrackBinding,
+    private val playerModel: PlayerViewModel,
     onItemClick: (data: Track) -> Unit
 ) : BaseHolder<Track>(binding, onItemClick) {
 
@@ -52,15 +58,50 @@ class TracksViewHolder private constructor(
 
         binding.trackTitle.requestLayout()
         binding.trackArtist.requestLayout()
+
+        playerModel.track.observe(itemView.context as LifecycleOwner, { track ->
+            if(track?.id == data.id){
+                binding.trackTitle.setTextColor(ContextCompat.getColor(itemView.context, R.color.accent))
+            } else {
+                binding.trackTitle.setTextColor(ContextCompat.getColor(itemView.context, R.color.white))
+            }
+        })
+
+        binding.root.setOnTouchListener { view, event ->
+            when(event.action) {
+                MotionEvent.ACTION_DOWN -> {
+                    view.scaleX = 0.98f
+                    view.scaleY = 0.98f
+                    true
+                }
+
+                MotionEvent.ACTION_UP -> {
+                    view.performClick()
+                    view.scaleX = 1f
+                    view.scaleY = 1f
+                    true
+                }
+
+                MotionEvent.ACTION_MOVE -> {
+                    view.scaleX = 1f
+                    view.scaleY = 1f
+                    true
+                }
+
+                else -> false
+            }
+        }
     }
 
     companion object {
         fun create(
             context: Context,
+            playerModel: PlayerViewModel,
             onItemClick: (data: Track) -> Unit
         ): TracksViewHolder {
             return TracksViewHolder(
                 ItemTrackBinding.inflate(context.inflater),
+                playerModel,
                 onItemClick
             )
         }
@@ -73,21 +114,23 @@ class AlbumGridViewHolder private constructor(
     onItemClick: (data: Album) -> Unit
 ) : BaseHolder<Album>(binding, onItemClick) {
 
+    val preferencesManager = PreferencesManager.getInstance()
+
     override fun onBind(data: Album) {
         binding.album = data
         binding.albumName.requestLayout()
         binding.albumArtist.requestLayout()
 
-        playerModel.currentPlayingAlbum.observe(itemView.context as LifecycleOwner, Observer {
-            if(it == data){
+        playerModel.currentPlayingAlbum.observe(itemView.context as LifecycleOwner, {
+            if (it == data) {
                 binding.playAlbum.setImageResource(R.drawable.ic_pause_circle)
             } else {
                 binding.playAlbum.setImageResource(R.drawable.ic_play_circle)
             }
         })
 
-        playerModel.isPlaying.observe(itemView.context as LifecycleOwner, Observer { isPlaying ->
-            if(isPlaying && playerModel.currentPlayingAlbum.value == data){
+        playerModel.isPlaying.observe(itemView.context as LifecycleOwner, { isPlaying ->
+            if (isPlaying && playerModel.currentPlayingAlbum.value == data) {
                 binding.playAlbum.setImageResource(R.drawable.ic_pause_circle)
             } else {
                 binding.playAlbum.setImageResource(R.drawable.ic_play_circle)
@@ -95,10 +138,42 @@ class AlbumGridViewHolder private constructor(
         })
 
         binding.playAlbum.setOnClickListener {
-            if(playerModel.currentPlayingAlbum.value == data){
+            if (playerModel.currentPlayingAlbum.value == data) {
                 playerModel.invertPlayingStatus()
             } else {
                 playerModel.playAlbum(data, false)
+            }
+        }
+
+        if(data.id == Long.MAX_VALUE) {
+            binding.playAlbum.visibility = View.GONE
+        }
+
+        binding.root.setOnTouchListener { view, event ->
+            when (event.action) {
+                MotionEvent.ACTION_DOWN -> {
+                    view.scaleX = 0.98f
+                    view.scaleY = 0.98f
+                    view.alpha = 0.85f
+                    true
+                }
+
+                MotionEvent.ACTION_UP -> {
+                    view.performClick()
+                    view.scaleX = 1f
+                    view.scaleY = 1f
+                    view.alpha = 1f
+                    true
+                }
+
+                MotionEvent.ACTION_MOVE -> {
+                    view.scaleX = 1f
+                    view.scaleY = 1f
+                    view.alpha = 1f
+                    true
+                }
+
+                else -> false
             }
         }
 
@@ -147,10 +222,42 @@ class AlbumLinearViewHolder private constructor(
         })
 
         binding.playAlbum.setOnClickListener {
-            if(playerModel.currentPlayingAlbum.value == data){
+            if (playerModel.currentPlayingAlbum.value == data) {
                 playerModel.invertPlayingStatus()
             } else {
                 playerModel.playAlbum(data, false)
+            }
+        }
+
+        if(data.id == Long.MAX_VALUE) {
+            binding.playAlbum.visibility = View.GONE
+        }
+
+        binding.root.setOnTouchListener { view, event ->
+            when (event.action) {
+                MotionEvent.ACTION_DOWN -> {
+                    view.scaleX = 0.98f
+                    view.scaleY = 0.98f
+                    view.alpha = 0.8f
+                    true
+                }
+
+                MotionEvent.ACTION_UP -> {
+                    view.performClick()
+                    view.scaleX = 1f
+                    view.scaleY = 1f
+                    view.alpha = 1f
+                    true
+                }
+
+                MotionEvent.ACTION_MOVE -> {
+                    view.scaleX = 1f
+                    view.scaleY = 1f
+                    view.alpha = 1f
+                    true
+                }
+
+                else -> false
             }
         }
 
@@ -187,12 +294,37 @@ class ClickedAlbumTracksViewHolder private constructor(
             }
         })
 
-        itemView.setOnClickListener {
+        binding.root.setOnClickListener {
             playerModel.playTrack(data, QueueConstructor.IN_ALBUM.toInt())
         }
 
         binding.trackTitle.requestLayout()
         binding.trackArtist.requestLayout()
+
+        binding.root.setOnTouchListener { view, event ->
+            when(event.action) {
+                MotionEvent.ACTION_DOWN -> {
+                    view.scaleX = 0.98f
+                    view.scaleY = 0.98f
+                    true
+                }
+
+                MotionEvent.ACTION_UP -> {
+                    view.performClick()
+                    view.scaleX = 1f
+                    view.scaleY = 1f
+                    true
+                }
+
+                MotionEvent.ACTION_MOVE -> {
+                    view.scaleX = 1f
+                    view.scaleY = 1f
+                    true
+                }
+
+                else -> false
+            }
+        }
     }
 
     companion object {
@@ -217,13 +349,41 @@ class ArtistsViewHolder private constructor(
         binding.artist = data
 
         if(data.tracksCount != 1){
-            binding.artistsTracksCount.text = binding.artistsTracksCount.context.resources.getString(R.string.artists_tracks_count, data.tracksCount)
+            binding.artistsTracksCount.text = binding.artistsTracksCount.context.resources.getString(R.string.tracks_count, data.tracksCount)
         } else {
-            binding.artistsTracksCount.text = binding.artistsTracksCount.context.resources.getString(R.string.artists_one_track, data.tracksCount)
+            binding.artistsTracksCount.text = binding.artistsTracksCount.context.resources.getString(R.string.one_track, data.tracksCount)
         }
 
         binding.artistName.requestLayout()
         binding.artistsTracksCount.requestLayout()
+
+        binding.root.setOnTouchListener { view, event ->
+            when (event.action) {
+                MotionEvent.ACTION_DOWN -> {
+                    view.scaleX = 0.98f
+                    view.scaleY = 0.98f
+                    view.alpha = 0.85f
+                    true
+                }
+
+                MotionEvent.ACTION_UP -> {
+                    view.performClick()
+                    view.scaleX = 1f
+                    view.scaleY = 1f
+                    view.alpha = 1f
+                    true
+                }
+
+                MotionEvent.ACTION_MOVE -> {
+                    view.scaleX = 1f
+                    view.scaleY = 1f
+                    view.alpha = 1f
+                    true
+                }
+
+                else -> false
+            }
+        }
     }
 
     companion object {
@@ -239,13 +399,18 @@ class ArtistsViewHolder private constructor(
     }
 }
 
-class ClickedArtistTracksViewHolder private constructor(
-    private val binding: ItemTrackBinding,
-    private val playerModel: PlayerViewModel
-) : BaseHolder<Track>(binding) {
+class FavoriteTracksViewHolder private constructor(
+    private val binding: ItemFavoriteTrackBinding,
+    private val playerModel: PlayerViewModel,
+    private val favoritesModel: FavoritesViewModel,
+    onItemClick: (data: Track) -> Unit
+) : BaseHolder<Track>(binding, onItemClick) {
 
     override fun onBind(data: Track) {
         binding.track = data
+
+        binding.trackTitle.requestLayout()
+        binding.trackArtist.requestLayout()
 
         playerModel.track.observe(itemView.context as LifecycleOwner, { track ->
             if(track?.id == data.id){
@@ -255,22 +420,65 @@ class ClickedArtistTracksViewHolder private constructor(
             }
         })
 
-        itemView.setOnClickListener {
-            playerModel.playTrack(data, QueueConstructor.IN_ARTIST.toInt())
+        binding.favoriteIcon.setOnClickListener {
+            val bindingDialog = DialogRemoveFavoriteTrackBinding.inflate(LayoutInflater.from(it.context))
+            val builder = AlertDialog.Builder(it.context, R.style.CustomAlertDialog)
+            builder.setView(bindingDialog.root)
+
+            val mAlertDialog = builder.show()
+
+            bindingDialog.trackName.text = data.name
+
+            bindingDialog.delete.setOnClickListener {
+                favoritesModel.deleteTrack(data.id)
+                favoritesModel.setFavorite(isFavorite = false, data.id)
+                favoritesModel.setFavorite(isFavorite = true)
+                mAlertDialog.dismiss()
+            }
+
+            bindingDialog.cancel.setOnClickListener {
+                mAlertDialog.dismiss()
+            }
         }
 
-        binding.trackTitle.requestLayout()
-        binding.trackArtist.requestLayout()
+        binding.root.setOnTouchListener { view, event ->
+            when(event.action) {
+                MotionEvent.ACTION_DOWN -> {
+                    view.scaleX = 0.98f
+                    view.scaleY = 0.98f
+                    true
+                }
+
+                MotionEvent.ACTION_UP -> {
+                    view.performClick()
+                    view.scaleX = 1f
+                    view.scaleY = 1f
+                    true
+                }
+
+                MotionEvent.ACTION_MOVE -> {
+                    view.scaleX = 1f
+                    view.scaleY = 1f
+                    true
+                }
+
+                else -> false
+            }
+        }
     }
 
     companion object {
         fun create(
             context: Context,
             playerModel: PlayerViewModel,
-        ): ClickedArtistTracksViewHolder {
-            return ClickedArtistTracksViewHolder(
-                ItemTrackBinding.inflate(context.inflater),
-                playerModel
+            favoritesModel: FavoritesViewModel,
+            onItemClick: (data: Track) -> Unit
+        ): FavoriteTracksViewHolder {
+            return FavoriteTracksViewHolder(
+                ItemFavoriteTrackBinding.inflate(context.inflater),
+                playerModel,
+                favoritesModel,
+                onItemClick
             )
         }
     }

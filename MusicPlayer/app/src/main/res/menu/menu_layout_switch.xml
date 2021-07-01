@@ -4,8 +4,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
-        android:id="@+id/changeToGrid"
-        android:icon="@drawable/ic_grid_view"
+        android:id="@+id/changeLayout"
+        android:icon="@drawable/ic_list_view"
         android:title="@string/search"
         app:iconTint="@color/white"
         app:showAsAction="always|collapseActionView"

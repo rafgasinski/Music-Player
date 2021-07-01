@@ -4,9 +4,8 @@ import android.os.Bundle
 import android.view.*
 import android.widget.EditText
 import androidx.appcompat.widget.SearchView
-import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
+import androidx.fragment.app.activityViewModels
 import com.example.musicplayer.R
 import com.example.musicplayer.adapters.TracksAdapter
 import com.example.musicplayer.databinding.FragmentTracksBinding
@@ -19,11 +18,11 @@ class TracksFragment : Fragment() {
     private var _binding: FragmentTracksBinding? = null
     private val binding get() = _binding!!
 
-    private lateinit var playerModel: PlayerViewModel
+    private val playerModel: PlayerViewModel by activityViewModels()
     private val musicStore = MusicStore.getInstance()
 
     private val tracksAdapter: TracksAdapter by lazy {
-        TracksAdapter(onItemClick = { playerModel.playTrack(it, QueueConstructor.ALL_TRACKS.toInt()) })
+        TracksAdapter(playerModel, onItemClick = { playerModel.playTrack(it, QueueConstructor.ALL_TRACKS.toInt()) })
     }
 
     private var menuItemSearch: MenuItem? = null
@@ -34,50 +33,48 @@ class TracksFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentTracksBinding.inflate(inflater, container, false)
-        playerModel = ViewModelProvider(this).get(PlayerViewModel::class.java)
 
-        activity?.window?.statusBarColor = ContextCompat.getColor(requireContext(), R.color.aboveBackground)
+        binding.toolbar.apply {
+            title = getString(R.string.all_tracks)
+            inflateMenu(R.menu.menu_tracks_fragment)
+            setOnMenuItemClickListener{
+                when(it.itemId){
+                    R.id.itemSearch -> {
+                        menuItemSearch = it
+                        searchView = menuItemSearch!!.actionView as SearchView
 
-        binding.toolbar.title = getString(R.string.all_tracks)
-        binding.toolbar.inflateMenu(R.menu.menu_tracks_fragment)
+                        val searchEditText = searchView?.findViewById<EditText>(androidx.appcompat.R.id.search_src_text)
+                        searchEditText?.setHint(R.string.search_in_tracks_list)
 
-        binding.toolbar.setOnMenuItemClickListener{
-            when(it.itemId){
-                R.id.itemSearch -> {
-                    menuItemSearch = it
-                    searchView = menuItemSearch!!.actionView as SearchView
-
-                    val searchEditText = searchView?.findViewById<EditText>(androidx.appcompat.R.id.search_src_text)
-                    searchEditText?.setHint(R.string.search_in_tracks_list)
-
-                    searchView!!.setOnQueryTextListener(
-                        object : SearchView.OnQueryTextListener {
-                            override fun onQueryTextSubmit(textInput: String?): Boolean {
-                                return false
-                            }
-
-                            override fun onQueryTextChange(textInput: String?): Boolean {
-                                tracksAdapter.filter.filter(textInput)
-
-                                if(textInput.isNullOrEmpty()) {
-                                    binding.fastScroll.visibility = View.VISIBLE
-                                } else {
-                                    binding.fastScroll.visibility = View.GONE
+                        searchView!!.setOnQueryTextListener(
+                            object : SearchView.OnQueryTextListener {
+                                override fun onQueryTextSubmit(textInput: String?): Boolean {
+                                    return false
                                 }
 
-                                return true
+                                override fun onQueryTextChange(textInput: String?): Boolean {
+                                    tracksAdapter.filter.filter(textInput)
+
+                                    if(textInput.isNullOrEmpty()) {
+                                        binding.fastScroll.visibility = View.VISIBLE
+                                    } else {
+                                        binding.fastScroll.visibility = View.GONE
+                                    }
+
+                                    return true
+                                }
                             }
-                        }
-                    )
+                        )
 
-                    true
-                }
+                        true
+                    }
 
-                R.id.itemShuffle -> {
-                    playerModel.shuffleAll()
-                    true
+                    R.id.itemShuffle -> {
+                        playerModel.shuffleAll()
+                        true
+                    }
+                    else -> false
                 }
-                else -> false
             }
         }
 

@@ -37,6 +37,7 @@ class PlayerViewModel : ViewModel(), PlayerStateManager.Callback {
     val isPlaying: LiveData<Boolean> get() = mIsPlaying
     val isShuffling: LiveData<Boolean> get() = mIsShuffling
     val loopMode: LiveData<LoopMode> get() = mLoopMode
+    val currentIndex: MutableLiveData<Int> get() = mIndex
 
     val isSeeking: LiveData<Boolean> get() = mIsSeeking
 
@@ -97,6 +98,10 @@ class PlayerViewModel : ViewModel(), PlayerStateManager.Callback {
         playbackManager.shuffleAll()
     }
 
+    fun playFavorites(shuffled: Boolean) {
+        playbackManager.playFavorites(shuffled)
+    }
+
     fun setPosition(progress: Int) {
         playbackManager.seekTo((progress * 1000).toLong())
     }
@@ -138,6 +143,7 @@ class PlayerViewModel : ViewModel(), PlayerStateManager.Callback {
         track?.let {
             mCurrentPlayingAlbum.value = track.album
         }
+        setFavorite()
     }
 
     override fun onParentUpdate(parent: Parent?) {
@@ -172,5 +178,9 @@ class PlayerViewModel : ViewModel(), PlayerStateManager.Callback {
 
     override fun onLoopUpdate(loopMode: LoopMode) {
         mLoopMode.value = loopMode
+    }
+
+    private fun setFavorite() {
+        playbackManager.setFavorite(musicStore.favoriteTracks.any { it.id == mTrack.value?.id }, mTrack.value?.id)
     }
 }

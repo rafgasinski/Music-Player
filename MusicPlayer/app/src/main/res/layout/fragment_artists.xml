@@ -13,7 +13,6 @@
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbar"
             style="@style/Toolbar.Style"
-            app:layout_scrollFlags="scroll|enterAlways"
             app:theme="@style/ToolbarTheme"
             app:menu="@menu/menu_artists_fragment"
             tools:title="@string/artists"

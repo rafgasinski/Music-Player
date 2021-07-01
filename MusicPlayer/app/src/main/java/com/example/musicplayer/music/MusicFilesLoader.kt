@@ -5,7 +5,10 @@ import android.content.Context
 import android.net.Uri
 import android.provider.MediaStore
 import com.example.musicplayer.R
+import com.example.musicplayer.music.MusicUtils.extractInt
+import com.example.musicplayer.music.MusicUtils.removePrefixes
 import com.example.musicplayer.music.MusicUtils.toAlbumArtURI
+import java.util.*
 
 class MusicFilesLoader(private val context: Context) {
     var albums = mutableListOf<Album>()
@@ -28,13 +31,11 @@ class MusicFilesLoader(private val context: Context) {
         val albumCursor = resolver.query(
             MediaStore.Audio.Albums.EXTERNAL_CONTENT_URI,
             arrayOf(
-                MediaStore.Audio.Albums._ID, // 0
-                MediaStore.Audio.Albums.ALBUM, // 1
-                MediaStore.Audio.Albums.ARTIST, // 2
-                MediaStore.Audio.Albums.FIRST_YEAR, // 4
+                MediaStore.Audio.Albums._ID,
+                MediaStore.Audio.Albums.ALBUM,
+                MediaStore.Audio.Albums.ARTIST
             ),
-            null, null,
-            MediaStore.Audio.Albums.DEFAULT_SORT_ORDER
+            null, null, null
         )
 
         val albumPlaceholder = context.getString(R.string.placeholder_album)
@@ -47,9 +48,13 @@ class MusicFilesLoader(private val context: Context) {
 
             while (cursor.moveToNext()) {
                 val id = cursor.getLong(idIndex)
-                val name = cursor.getString(nameIndex) ?: albumPlaceholder
-                var artistName = cursor.getString(artistNameIndex) ?: artistPlaceholder
+                var name = cursor.getString(nameIndex)
+                var artistName = cursor.getString(artistNameIndex)
                 val coverUri = id.toAlbumArtURI()
+
+                if (name == context.getString(R.string.music_placeholder)) {
+                    name = albumPlaceholder
+                }
 
                 if (artistName == MediaStore.UNKNOWN_STRING) {
                     artistName = artistPlaceholder
@@ -63,7 +68,13 @@ class MusicFilesLoader(private val context: Context) {
             it.name to it.artistName
         }.toMutableList()
 
-        albums.sortBy { it.name }
+        albums.sortWith { album1, album2 ->
+            if (album1.name.contains("\\d".toRegex()) || album2.name.contains("\\d".toRegex())) {
+                extractInt(album1.name) - extractInt(album2.name)
+            } else {
+                album1.name.compareTo(album2.name)
+            }
+        }
     }
 
     @SuppressLint("InlinedApi")
@@ -79,8 +90,10 @@ class MusicFilesLoader(private val context: Context) {
                 MediaStore.Audio.Media.ARTIST,
                 MediaStore.Audio.Media.DURATION,
             ),
-            selector, null, MediaStore.Audio.Media.DEFAULT_SORT_ORDER
+            selector, null, null
         )
+
+        val artistPlaceholder = context.getString(R.string.placeholder_artist)
 
         cursor?.use { cursor ->
             val idIndex = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media._ID)
@@ -97,8 +110,12 @@ class MusicFilesLoader(private val context: Context) {
                 val title = cursor.getString(titleIndex) ?: fileName
                 val albumId = cursor.getLong(albumIndex)
                 val track = cursor.getInt(trackIndex)
-                val artist = cursor.getString(artistIndex)
+                var artist = cursor.getString(artistIndex)
                 val duration = cursor.getLong(durationIndex)
+
+                if (artist == MediaStore.UNKNOWN_STRING) {
+                    artist = artistPlaceholder
+                }
 
                 tracks.add(Track(id, title, fileName, albumId, track, artist, duration))
             }
@@ -107,6 +124,14 @@ class MusicFilesLoader(private val context: Context) {
         tracks = tracks.distinctBy {
             it.name to it.albumId to it.positionInAlbum to it.duration
         }.toMutableList()
+
+        tracks.sortWith { track1, track2 ->
+            val name1 = track1.name.replace("[^\\p{L}\\p{N}\\s]+".toRegex(), "")
+            val name2 = track2.name.replace("[^\\p{L}\\p{N}\\s]+".toRegex(), "")
+
+            return@sortWith name1.removePrefixes.compareTo(name2.removePrefixes, true)
+        }
+
     }
 
     private fun linkAlbums() {
@@ -144,6 +169,8 @@ class MusicFilesLoader(private val context: Context) {
         tracksByArtist.forEach { entry ->
             (artists.find { it.name == entry.key })?.linkTracks(entry.value)
         }
+
+        artists.sortBy { it.name }
     }
 
 }

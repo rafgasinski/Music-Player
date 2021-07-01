@@ -7,7 +7,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
 import androidx.appcompat.widget.SearchView
-import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.example.musicplayer.R
@@ -37,8 +36,6 @@ class ArtistsFragment : Fragment() {
         _binding = FragmentArtistsBinding.inflate(inflater, container, false)
 
         binding.toolbar.title = getString(R.string.artists)
-
-        activity?.window?.statusBarColor = ContextCompat.getColor(requireContext(), R.color.aboveBackground)
 
         binding.artistsRecyclerView.apply {
             adapter = artistsAdapter
@@ -79,7 +76,6 @@ class ArtistsFragment : Fragment() {
 
         return binding.root
     }
-
 
     private fun navToClickedArtist(artist: Artist) {
         findNavController().navigate(ArtistsFragmentDirections.actionArtistsFragmentToClickedArtistFragment(artist.id))

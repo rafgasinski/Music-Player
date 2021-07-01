@@ -46,6 +46,14 @@ class PlayerStateManager private constructor() {
             callbacks.forEach { it.onPlayingUpdate(value) }
         }
 
+    private var mFavoriteId: Long? = null
+
+    private var mIsFavorite = false
+        set(value) {
+            field = value
+            callbacks.forEach { it.onFavoriteUpdate(value, mFavoriteId) }
+        }
+
     private var mIsShuffling = false
         set(value) {
             field = value
@@ -64,6 +72,7 @@ class PlayerStateManager private constructor() {
     val parent: Parent? get() = mParent
     val position: Long get() = mPosition
     val isPlaying: Boolean get() = mIsPlaying
+    val isFavorite: Boolean get() = mIsFavorite
     val isShuffling: Boolean get() = mIsShuffling
     val loopMode: LoopMode get() = mLoopMode
     val hasPlayed: Boolean get() = mHasPlayed
@@ -99,7 +108,7 @@ class PlayerStateManager private constructor() {
 
             QueueConstructor.FAVORITE_TRACKS -> {
                 mParent = null
-                mQueue = musicStore.tracks.toMutableList()
+                mQueue = musicStore.favoriteTracks.toMutableList()
             }
         }
 
@@ -140,6 +149,15 @@ class PlayerStateManager private constructor() {
         updatePlayback(mQueue[0])
     }
 
+    fun playFavorites(shuffled: Boolean) {
+        mMode = QueueConstructor.FAVORITE_TRACKS
+        mQueue = musicStore.favoriteTracks.toMutableList()
+        mParent = null
+
+        setShuffling(shuffled, keepSong = false)
+        updatePlayback(mQueue[0])
+    }
+
     private fun updatePlayback(track: Track, shouldPlay: Boolean = true) {
         mTrack = track
         mPosition = 0
@@ -156,6 +174,10 @@ class PlayerStateManager private constructor() {
             updatePlayback(mQueue[mIndex], shouldPlay = mLoopMode == LoopMode.ALL)
         }
 
+        if(mLoopMode == LoopMode.TRACK){
+            mLoopMode = LoopMode.ALL
+        }
+
         forceQueueUpdate()
     }
 
@@ -165,6 +187,12 @@ class PlayerStateManager private constructor() {
         } else {
             if (mIndex > 0) {
                 mIndex = mIndex.dec()
+            } else if(mIndex == 0 && mLoopMode != LoopMode.NONE){
+                mIndex = mQueue.lastIndex
+            }
+
+            if(mLoopMode == LoopMode.TRACK){
+                mLoopMode = LoopMode.ALL
             }
 
             updatePlayback(mQueue[mIndex])
@@ -217,7 +245,7 @@ class PlayerStateManager private constructor() {
             QueueConstructor.IN_ARTIST -> (mParent as Artist).tracks.toMutableList()
             QueueConstructor.IN_ALBUM -> (mParent as Album).tracks.sortedBy { it.positionInAlbum }.toMutableList()
             QueueConstructor.ALL_TRACKS -> musicStore.tracks.toMutableList()
-            QueueConstructor.FAVORITE_TRACKS -> musicStore.tracks.toMutableList()
+            QueueConstructor.FAVORITE_TRACKS -> musicStore.favoriteTracks.toMutableList()
         }
 
         if (keepSong) {
@@ -235,6 +263,14 @@ class PlayerStateManager private constructor() {
             }
 
             mIsPlaying = playing
+        }
+    }
+
+    fun setFavorite(favorite: Boolean, favoriteTrackId: Long?)  {
+        mFavoriteId = favoriteTrackId
+
+        if (mIsFavorite != favorite) {
+            mIsFavorite = favorite
         }
     }
 
@@ -273,6 +309,7 @@ class PlayerStateManager private constructor() {
         fun onModeUpdate(mode: QueueConstructor) {}
         fun onIndexUpdate(index: Int) {}
         fun onPlayingUpdate(isPlaying: Boolean) {}
+        fun onFavoriteUpdate(isFavorite: Boolean, trackId: Long? = null) {}
         fun onShuffleUpdate(isShuffling: Boolean) {}
         fun onLoopUpdate(loopMode: LoopMode) {}
         fun onSeek(position: Long) {}

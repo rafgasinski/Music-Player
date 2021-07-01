@@ -5,15 +5,16 @@ import android.widget.Filter
 import android.widget.Filterable
 import androidx.recyclerview.widget.RecyclerView
 import com.example.musicplayer.music.Track
+import com.example.musicplayer.viewmodels.PlayerViewModel
 import java.util.*
 
-class TracksAdapter(private val onItemClick: (data: Track) -> Unit) : RecyclerView.Adapter<TracksViewHolder>(), Filterable {
+class TracksAdapter(private val playerModel: PlayerViewModel, private val onItemClick: (data: Track) -> Unit) : RecyclerView.Adapter<TracksViewHolder>(), Filterable {
 
     var tracksAll : List<Track> = listOf()
     var tracksSearched: List<Track> = listOf()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TracksViewHolder {
-        return TracksViewHolder.create(parent.context, onItemClick)
+        return TracksViewHolder.create(parent.context, playerModel, onItemClick)
     }
 
     override fun getItemCount(): Int {

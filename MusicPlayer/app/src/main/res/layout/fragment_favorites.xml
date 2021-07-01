@@ -10,43 +10,46 @@
         android:layout_height="match_parent"
         android:background="@color/background">
 
-        <com.google.android.material.appbar.AppBarLayout
-            android:id="@+id/app_bar_layout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
+            style="@style/Toolbar.Style"
+            android:elevation="0dp"
+            app:theme="@style/ToolbarTheme"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
+            app:layout_constraintTop_toTopOf="parent"
+            tools:title="@string/favorites" />
 
-            <androidx.appcompat.widget.Toolbar
-                android:id="@+id/toolbar"
-                style="@style/Toolbar.Style"
-                app:layout_scrollFlags="scroll|enterAlways"
-                app:theme="@style/ToolbarTheme"
-                tools:title="@string/favorites" />
-
-            <com.google.android.material.tabs.TabLayout
-                android:id="@+id/tab_layout"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@color/aboveBackground"
-                app:tabSelectedTextColor="@color/accent"
-                app:tabTextColor="@color/white"
-                app:tabIndicatorColor="@color/accent"
-                app:tabGravity="fill"
-                app:tabMode="fixed" />
-
-        </com.google.android.material.appbar.AppBarLayout>
-
-        <androidx.viewpager2.widget.ViewPager2
-            android:id="@+id/view_pager"
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/favorites_recycler_view"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            app:layout_behavior="@string/appbar_scrolling_view_behavior"
+            app:layout_constraintTop_toBottomOf="@id/toolbar"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/app_bar_layout"
-            app:layout_constraintBottom_toBottomOf="parent"/>
+            tools:paddingTop="14dp"
+            tools:paddingStart="8dp"
+            tools:paddingEnd="8dp"
+            tools:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
+            tools:spanCount="2"
+            tools:listitem="@layout/item_album_grid" />
+
+        <TextView
+            android:id="@+id/no_favorites_info"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/no_favorites_tracks_or_albums"
+            android:textColor="@color/white"
+            android:textStyle="bold"
+            android:textSize="24sp"
+            android:alpha="0"
+            android:textAlignment="center"
+            app:layout_constraintTop_toBottomOf="@id/toolbar"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            tools:text="No favorite tracks\nor albums" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

@@ -58,6 +58,22 @@
         tools:layout="@layout/fragment_favorites" >
         <action
             android:id="@+id/action_favoritesFragment_to_fragmentClickedAlbum"
-            app:destination="@id/fragmentClickedAlbum" />
+            app:destination="@id/fragmentClickedAlbum"
+            app:enterAnim="@anim/fade_in_navigation"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+            app:popExitAnim="@anim/nav_default_pop_exit_anim"/>
+        <action
+            android:id="@+id/action_favoritesFragment_to_favoriteTrackFragment"
+            app:destination="@id/favoriteTrackFragment"
+            app:enterAnim="@anim/fade_in_navigation"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+            app:popExitAnim="@anim/nav_default_pop_exit_anim"/>
     </fragment>
+    <fragment
+        android:id="@+id/favoriteTrackFragment"
+        android:name="com.example.musicplayer.ui.favorites.FavoriteTrackFragment"
+        android:label="FavoriteTrackFragment"
+        />
 </navigation>
