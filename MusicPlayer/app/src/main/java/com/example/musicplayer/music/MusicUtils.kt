@@ -29,11 +29,6 @@ object MusicUtils {
         )
     }
 
-    fun extractInt(s: String): Int {
-        val num = s.replace("\\D".toRegex(), "")
-        return if (num.isEmpty()) 0 else Integer.parseInt(num)
-    }
-
     val String.removePrefixes: String get() {
 
         if (length > 3 && startsWith("a ", true)) {

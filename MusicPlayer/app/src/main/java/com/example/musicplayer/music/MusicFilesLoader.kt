@@ -2,12 +2,13 @@ package com.example.musicplayer.music
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.net.Uri
 import android.provider.MediaStore
+import android.util.Log
 import com.example.musicplayer.R
 import com.example.musicplayer.music.MusicUtils.extractInt
 import com.example.musicplayer.music.MusicUtils.removePrefixes
 import com.example.musicplayer.music.MusicUtils.toAlbumArtURI
+import com.example.musicplayer.utils.getUriToDrawable
 import java.util.*
 
 class MusicFilesLoader(private val context: Context) {
@@ -40,6 +41,8 @@ class MusicFilesLoader(private val context: Context) {
 
         val albumPlaceholder = context.getString(R.string.placeholder_album)
         val artistPlaceholder = context.getString(R.string.placeholder_artist)
+        var unknownAlbumId = Long.MAX_VALUE
+        val unknownAlbum : Album?
 
         albumCursor?.use { cursor ->
             val idIndex = cursor.getColumnIndexOrThrow(MediaStore.Audio.Albums._ID)
@@ -54,6 +57,7 @@ class MusicFilesLoader(private val context: Context) {
 
                 if (name == context.getString(R.string.music_placeholder)) {
                     name = albumPlaceholder
+                    unknownAlbumId = id
                 }
 
                 if (artistName == MediaStore.UNKNOWN_STRING) {
@@ -68,12 +72,12 @@ class MusicFilesLoader(private val context: Context) {
             it.name to it.artistName
         }.toMutableList()
 
-        albums.sortWith { album1, album2 ->
-            if (album1.name.contains("\\d".toRegex()) || album2.name.contains("\\d".toRegex())) {
-                extractInt(album1.name) - extractInt(album2.name)
-            } else {
-                album1.name.compareTo(album2.name)
-            }
+        albums.sortBy { it.name }
+
+        if(unknownAlbumId != Long.MAX_VALUE) {
+            unknownAlbum = albums[albums.indexOfFirst { it.id == unknownAlbumId }]
+            albums.remove(unknownAlbum)
+            albums.add(albums.lastIndex + 1, unknownAlbum)
         }
     }
 
@@ -140,7 +144,7 @@ class MusicFilesLoader(private val context: Context) {
             id = -1,
             name = context.getString(R.string.placeholder_album),
             artistName = context.getString(R.string.placeholder_artist),
-            coverUri = Uri.EMPTY,
+            coverUri = getUriToDrawable(context, R.drawable.album_placeholder),
         )
 
         tracksByAlbum.forEach { entry ->
@@ -155,8 +159,17 @@ class MusicFilesLoader(private val context: Context) {
     }
 
     private fun buildArtists() {
+        var unknownArtist: Artist? = null
         val tracksByArtist = tracks.groupBy { it.artistName }
         tracksByArtist.forEach { entry ->
+            if(entry.key == context.getString(R.string.placeholder_artist)) {
+                unknownArtist = Artist(
+                    id = (Int.MIN_VALUE + artists.size).toLong(),
+                    name = entry.key,
+                    tracks = entry.value
+                )
+            }
+
             artists.add(
                 Artist(
                     id = (Int.MIN_VALUE + artists.size).toLong(),
@@ -170,7 +183,11 @@ class MusicFilesLoader(private val context: Context) {
             (artists.find { it.name == entry.key })?.linkTracks(entry.value)
         }
 
-        artists.sortBy { it.name }
+        artists.apply {
+            sortBy { it.name }
+            remove(unknownArtist)
+            unknownArtist?.let { add(it) }
+        }
     }
 
 }
