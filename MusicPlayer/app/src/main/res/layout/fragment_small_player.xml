@@ -104,6 +104,7 @@
             android:scaleType="fitCenter"
             android:padding="2dp"
             android:background="@null"
+            app:tint="@color/white"
             android:layout_marginEnd="10dp"
             android:onClick="@{() -> playerModel.invertPlayingStatus()}"
             android:contentDescription="@string/play_pause_button"

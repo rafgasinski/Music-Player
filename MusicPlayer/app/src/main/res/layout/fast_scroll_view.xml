@@ -10,13 +10,15 @@
 
         <FrameLayout
             android:id="@+id/scroll_thumb"
-            android:layout_width="20dp"
-            android:layout_height="20dp"
+            android:layout_width="75dp"
+            android:layout_height="75dp"
             android:background="@drawable/circle"
-            android:backgroundTint="@color/aboveBackground"
             android:elevation="2dp"
             android:stateListAnimator="@animator/animator_thumb"
-            app:layout_constraintEnd_toEndOf="@+id/scroll_indicator_text" >
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" >
 
             <TextView
                 android:id="@+id/scroll_thumb_text"
@@ -24,7 +26,7 @@
                 android:layout_height="match_parent"
                 android:gravity="center"
                 android:textColor="@color/white"
-                android:textSize="14sp"
+                android:textSize="24sp"
                 android:textStyle="bold"
                 tools:text="A" />
 
@@ -44,7 +46,8 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            tools:text="A\nB\n\C" />
+            android:text="@string/scroll_indicator_text"
+            tools:text="#\nA\nB\n\C\nD\nE\nF\nG\nH\nI\nJ\nK\nL\nM\nN\nO\nP\nQ\nR\nS\nT\nU\nV\nW\nX\nY\nZ" />
 
     </merge>
 </layout>

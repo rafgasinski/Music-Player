@@ -46,7 +46,6 @@
         <item name="android:background">@null</item>
     </style>
 
-
     <style name="SearchAutoCompleteTextView" parent="Widget.AppCompat.Light.AutoCompleteTextView">
         <item name="android:textColor">@color/white</item>
         <item name="android:textColorHint">@color/textSecondary</item>
