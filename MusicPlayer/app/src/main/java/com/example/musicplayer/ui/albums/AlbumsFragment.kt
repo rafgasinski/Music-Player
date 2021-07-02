@@ -46,7 +46,6 @@ class AlbumsFragment : Fragment() {
 
         binding.toolbar.apply {
             title = getString(R.string.albums)
-            inflateMenu(R.menu.menu_layout_switch)
             setOnMenuItemClickListener{
                 when(it.itemId){
                     R.id.changeLayout  -> {
@@ -106,7 +105,7 @@ class AlbumsFragment : Fragment() {
         binding.albumsRecyclerView.apply {
             adapter = albumsLinearAdapter
             layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
-            setPadding(0, (8 * scale + 0.5f).toInt(), 0, (8 * scale + 0.5f).toInt())
+            setPadding(0, (10 * scale + 0.5f).toInt(), 0, (10 * scale + 0.5f).toInt())
         }
 
         binding.toolbar.menu.getItem(0).icon = ContextCompat.getDrawable(requireContext(), R.drawable.ic_grid_view)

@@ -15,6 +15,7 @@
             style="@style/Toolbar.Style"
             android:elevation="0dp"
             app:theme="@style/ToolbarTheme"
+            app:menu="@menu/menu_layout_switch"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
