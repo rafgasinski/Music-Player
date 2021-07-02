@@ -449,6 +449,7 @@ class FavoriteTracksViewHolder private constructor(
                     MotionEvent.ACTION_DOWN -> {
                         view.scaleX = 0.98f
                         view.scaleY = 0.98f
+                        view.alpha = 0.6f
                         true
                     }
 
@@ -456,12 +457,14 @@ class FavoriteTracksViewHolder private constructor(
                         view.performClick()
                         view.scaleX = 1f
                         view.scaleY = 1f
+                        view.alpha = 1f
                         true
                     }
 
                     MotionEvent.ACTION_CANCEL -> {
                         view.scaleX = 1f
                         view.scaleY = 1f
+                        view.alpha = 1f
                         true
                     }
 
