@@ -1,5 +1,6 @@
 package com.example.musicplayer.ui
 
+import android.annotation.SuppressLint
 import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
 import android.view.*
@@ -16,7 +17,6 @@ import com.example.musicplayer.databinding.FragmentPlayerBinding
 import com.example.musicplayer.music.MusicUtils
 import com.example.musicplayer.player.state.LoopMode
 import com.example.musicplayer.player.state.QueueConstructor
-import com.example.musicplayer.ui.artists.ArtistsFragmentDirections
 import com.example.musicplayer.utils.*
 import com.example.musicplayer.viewmodels.FavoritesViewModel
 import com.example.musicplayer.viewmodels.PlayerViewModel
@@ -47,6 +47,7 @@ class PlayerFragment : Fragment() {
         binding.gradientView.background = gradientBackground
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -119,10 +120,6 @@ class PlayerFragment : Fragment() {
                         }
                     }
                 })
-
-                binding.trackArtist.setOnClickListener {
-                    findNavController().navigate(ArtistsFragmentDirections.actionArtistsFragmentToClickedArtistFragment(track.artist.id))
-                }
             }
         }
 
@@ -134,6 +131,7 @@ class PlayerFragment : Fragment() {
 
         binding.viewOnImageView.setOnTouchListener(object: OnSwipeListener(inflater.context) {
             override fun onSwipeLeft() {
+                gradientLoaded = false
                 val animation = AnimationUtils.loadAnimation(inflater.context, R.anim.on_swipe_left_main_player)
                 animation.setAnimationListener(object : Animation.AnimationListener {
                     override fun onAnimationStart(arg0: Animation) {
@@ -152,6 +150,7 @@ class PlayerFragment : Fragment() {
             }
 
             override fun onSwipeRight() {
+                gradientLoaded = false
                 val animation = AnimationUtils.loadAnimation(inflater.context, R.anim.on_swipe_right_main_player)
                 animation.setAnimationListener(object : Animation.AnimationListener {
                     override fun onAnimationStart(arg0: Animation) {
@@ -172,31 +171,15 @@ class PlayerFragment : Fragment() {
             }
         })
 
-        binding.next.setOnClickListener {
-            val animation = AnimationUtils.loadAnimation(inflater.context, R.anim.on_swipe_left_main_player)
-            animation.setAnimationListener(object : Animation.AnimationListener {
-                override fun onAnimationStart(arg0: Animation) {
-                    binding.trackTitle.isSelected = false
-                    binding.trackArtist.isSelected = false
-                    playerModel.skipNext()
-                }
-                override fun onAnimationRepeat(arg0: Animation) {}
-                override fun onAnimationEnd(arg0: Animation) {
-                    binding.trackTitle.isSelected = true
-                    binding.trackArtist.isSelected = true
-                }
-            })
-
-            binding.trackCover.startAnimation(animation)
-        }
-
-        binding.previous.setOnClickListener {
-            val animation = AnimationUtils.loadAnimation(inflater.context, R.anim.on_swipe_right_main_player)
+        binding.next.apply {
+            setOnClickListener {
+                gradientLoaded = false
+                val animation = AnimationUtils.loadAnimation(inflater.context, R.anim.on_swipe_left_main_player)
                 animation.setAnimationListener(object : Animation.AnimationListener {
                     override fun onAnimationStart(arg0: Animation) {
                         binding.trackTitle.isSelected = false
                         binding.trackArtist.isSelected = false
-                        playerModel.skipPrev(true)
+                        playerModel.skipNext()
                     }
                     override fun onAnimationRepeat(arg0: Animation) {}
                     override fun onAnimationEnd(arg0: Animation) {
@@ -205,12 +188,93 @@ class PlayerFragment : Fragment() {
                     }
                 })
 
-            playerModel.positionAsProgress.value?.let{ position ->
-                if((playerModel.currentIndex.value == 0 && playerModel.loopMode.value == LoopMode.NONE) || position >= 3){
-                    playerModel.skipPrev(true)
-                } else {
-                    binding.trackCover.startAnimation(animation)
+                binding.trackCover.startAnimation(animation)
+            }
+
+            setOnTouchListener { view, event ->
+                when(event.action) {
+                    MotionEvent.ACTION_DOWN -> {
+                        view.scaleX = 0.98f
+                        view.scaleY = 0.98f
+                        view.alpha = 0.6f
+                        true
+                    }
+
+                    MotionEvent.ACTION_UP -> {
+                        view.performClick()
+                        view.scaleX = 1f
+                        view.scaleY = 1f
+                        view.alpha = 1f
+                        true
+                    }
+
+                    else -> false
                 }
+            }
+        }
+
+        binding.previous.apply {
+                setOnClickListener {
+                    gradientLoaded = false
+                    val animation = AnimationUtils.loadAnimation(inflater.context, R.anim.on_swipe_right_main_player)
+                        animation.setAnimationListener(object : Animation.AnimationListener {
+                            override fun onAnimationStart(arg0: Animation) {
+                                binding.trackTitle.isSelected = false
+                                binding.trackArtist.isSelected = false
+                                playerModel.skipPrev(true)
+                            }
+                            override fun onAnimationRepeat(arg0: Animation) {}
+                            override fun onAnimationEnd(arg0: Animation) {
+                                binding.trackTitle.isSelected = true
+                                binding.trackArtist.isSelected = true
+                            }
+                        })
+
+                    playerModel.positionAsProgress.value?.let{ position ->
+                        if((playerModel.currentIndex.value == 0 && playerModel.loopMode.value == LoopMode.NONE) || position >= 3){
+                            playerModel.skipPrev(true)
+                        } else {
+                            binding.trackCover.startAnimation(animation)
+                        }
+                    }
+            }
+
+            setOnTouchListener { view, event ->
+                when(event.action) {
+                    MotionEvent.ACTION_DOWN -> {
+                        view.scaleX = 0.98f
+                        view.scaleY = 0.98f
+                        view.alpha = 0.6f
+                        true
+                    }
+
+                    MotionEvent.ACTION_UP -> {
+                        view.performClick()
+                        view.scaleX = 1f
+                        view.scaleY = 1f
+                        view.alpha = 1f
+                        true
+                    }
+
+                    else -> false
+                }
+            }
+        }
+
+        binding.playPauseButton.setOnTouchListener { view, event ->
+            when(event.action) {
+                MotionEvent.ACTION_DOWN -> {
+                    view.alpha = 0.6f
+                    true
+                }
+
+                MotionEvent.ACTION_UP -> {
+                    view.performClick()
+                    view.alpha = 1f
+                    true
+                }
+
+                else -> false
             }
         }
 
@@ -297,14 +361,16 @@ class PlayerFragment : Fragment() {
 
         binding.favoriteCheckbox.setOnClickListener{
             isFavorite = if(isFavorite){
-                favoritesModel.setFavorite(isFavorite = false, playerModel.track.value?.id)
                 binding.favoriteCheckbox.setImageResource(R.drawable.ic_heart_outline)
+                it.startAnimation(AnimationUtils.loadAnimation(context, R.anim.shake))
                 false
-            } else{
-                favoritesModel.setFavorite(isFavorite = true, playerModel.track.value?.id)
+            } else {
                 binding.favoriteCheckbox.setImageResource(R.drawable.ic_heart_filled)
+                it.startAnimation(AnimationUtils.loadAnimation(context, R.anim.scale_down))
                 true
             }
+
+            favoritesModel.setFavorite(isFavorite)
         }
 
         return binding.root

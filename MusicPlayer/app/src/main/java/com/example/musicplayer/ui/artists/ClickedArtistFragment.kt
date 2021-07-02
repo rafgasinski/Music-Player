@@ -48,26 +48,37 @@ class ClickedArtistFragment : Fragment() {
 
         binding.artist = currentArtist
 
-        binding.appBarLayout.addOnOffsetChangedListener(OnOffsetChangedListener { appBarLayout, verticalOffset ->
-            if(abs(verticalOffset) - appBarLayout.totalScrollRange == 0){
-                binding.toolbarTitle.alpha = 1f
-                binding.toolbar.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.aboveBackground))
-            } else {
-                binding.toolbarTitle.alpha = 0f
-                binding.toolbar.background = null
+        binding.appBarLayout.apply {
+            background = GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM, intArrayOf(
+                ResourcesCompat.getColor(resources, R.color.accent, null),
+                manipulateColor(ResourcesCompat.getColor(resources, R.color.accent, null), 0.6f),
+                ResourcesCompat.getColor(resources, R.color.background, null)))
 
-                val offsetFactor = (abs(verticalOffset).toFloat() / appBarLayout.totalScrollRange.toFloat())
-                val scaleFactor = 1f - offsetFactor * 0.5f
-                binding.artistName.scaleX = scaleFactor
-                binding.artistName.scaleY = scaleFactor
-                if(scaleFactor < 0.8f) {
-                    binding.artistName.alpha = scaleFactor + 0.2f
+            addOnOffsetChangedListener(OnOffsetChangedListener { appBarLayout, verticalOffset ->
+                if(abs(verticalOffset) - appBarLayout.totalScrollRange == 0){
+                    binding.toolbarTitle.alpha = 1f
+                    binding.toolbar.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.aboveBackground))
+                } else if(abs(verticalOffset) == 0) {
+                    binding.artistName.scaleX = 1f
+                    binding.artistName.scaleY = 1f
+                    binding.artistName.alpha = 1f
+                } else {
+                    binding.toolbarTitle.alpha = 0f
+                    binding.toolbar.background = null
+
+                    val offsetFactor = (abs(verticalOffset).toFloat() / appBarLayout.totalScrollRange.toFloat())
+                    val scaleFactor = 1f - offsetFactor * 0.5f
+                    binding.artistName.scaleX = scaleFactor
+                    binding.artistName.scaleY = scaleFactor
+                    if(scaleFactor < 0.8f) {
+                        binding.artistName.alpha = scaleFactor + 0.2f
+                    }
+
+                    binding.toolbarTitle.alpha = 0f
+                    binding.toolbar.background = null
                 }
-
-                binding.toolbarTitle.alpha = 0f
-                binding.toolbar.background = null
-            }
-        })
+            })
+        }
 
         binding.artistName.setPadding(0, getStatusBarHeight(requireContext()), 0, 0)
 
@@ -88,11 +99,6 @@ class ClickedArtistFragment : Fragment() {
         binding.shuffleArtistButton.setOnClickListener {
             playerModel.playArtist(currentArtist, true)
         }
-
-        binding.appBarLayout.background = GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM, intArrayOf(
-            ResourcesCompat.getColor(resources, R.color.accent, null),
-            manipulateColor(ResourcesCompat.getColor(resources, R.color.accent, null), 0.6f),
-            ResourcesCompat.getColor(resources, R.color.background, null)))
 
         return binding.root
     }

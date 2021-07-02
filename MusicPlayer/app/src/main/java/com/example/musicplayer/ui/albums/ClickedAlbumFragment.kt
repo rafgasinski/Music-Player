@@ -3,6 +3,7 @@ package com.example.musicplayer.ui.albums
 import android.annotation.SuppressLint
 import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -133,6 +134,10 @@ class ClickedAlbumFragment : Fragment() {
             if(abs(verticalOffset) - appBarLayout.totalScrollRange == 0){
                 binding.toolbarTitle.alpha = 1f
                 binding.toolbar.setBackgroundColor(gradientTopColor)
+            } else if(abs(verticalOffset) == 0) {
+                binding.albumCover.scaleX = 1f
+                binding.albumCover.scaleY = 1f
+                binding.albumCover.alpha = 1f
             } else {
                 val offsetFactor = (abs(verticalOffset).toFloat() / appBarLayout.totalScrollRange.toFloat())
                 val scaleFactor = 1f - offsetFactor * 0.8f

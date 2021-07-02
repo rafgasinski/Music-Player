@@ -18,11 +18,11 @@ class FavoritesViewModel(application: Application): AndroidViewModel(application
 
     private val repository : FavoriteTableRepository
     private val favoriteDao = FavoriteDatabase.getDatabase(application).favoriteTableDao()
-    private val playbackManager = PlayerStateManager.getInstance()
+    private val playerManager = PlayerStateManager.getInstance()
     private val musicStore = MusicStore.getInstance()
 
     init {
-        playbackManager.addCallback(this)
+        playerManager.addCallback(this)
         repository = FavoriteTableRepository(favoriteDao)
 
         viewModelScope.launch {
@@ -44,21 +44,21 @@ class FavoritesViewModel(application: Application): AndroidViewModel(application
         }
     }
 
-    override fun onFavoriteUpdate(isFavorite: Boolean, trackId: Long?) {
+    override fun onCleared() {
+        playerManager.removeCallback(this)
+    }
+
+    override fun onFavoriteUpdate(isFavorite: Boolean) {
         if(isFavorite){
-            if(trackId == playbackManager.track?.id) {
-                playbackManager.track?.let { deleteTrack(it.id) }
-                playbackManager.track?.let { addTrack(it.id) }
-            }
+            playerManager.track?.let { deleteTrack(it.id) }
+            playerManager.track?.let { addTrack(it.id) }
         } else {
-            if(trackId == playbackManager.track?.id) {
-                playbackManager.track?.let { deleteTrack(it.id) }
-            }
+            playerManager.track?.let { deleteTrack(it.id) }
         }
     }
 
-    fun setFavorite(isFavorite: Boolean, favoriteTrackId: Long? = null) {
-        playbackManager.setFavorite(isFavorite, favoriteTrackId)
+    fun setFavorite(isFavorite: Boolean) {
+        playerManager.setFavorite(isFavorite)
     }
 
     private fun addTrack(trackId: Long){

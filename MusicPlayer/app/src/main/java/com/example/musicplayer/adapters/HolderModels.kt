@@ -82,7 +82,7 @@ class TracksViewHolder private constructor(
                     true
                 }
 
-                MotionEvent.ACTION_MOVE -> {
+                MotionEvent.ACTION_CANCEL -> {
                     view.scaleX = 1f
                     view.scaleY = 1f
                     true
@@ -166,7 +166,7 @@ class AlbumGridViewHolder private constructor(
                     true
                 }
 
-                MotionEvent.ACTION_MOVE -> {
+                MotionEvent.ACTION_CANCEL -> {
                     view.scaleX = 1f
                     view.scaleY = 1f
                     view.alpha = 1f
@@ -250,7 +250,7 @@ class AlbumLinearViewHolder private constructor(
                     true
                 }
 
-                MotionEvent.ACTION_MOVE -> {
+                MotionEvent.ACTION_CANCEL -> {
                     view.scaleX = 1f
                     view.scaleY = 1f
                     view.alpha = 1f
@@ -316,7 +316,7 @@ class ClickedAlbumTracksViewHolder private constructor(
                     true
                 }
 
-                MotionEvent.ACTION_MOVE -> {
+                MotionEvent.ACTION_CANCEL -> {
                     view.scaleX = 1f
                     view.scaleY = 1f
                     true
@@ -374,7 +374,7 @@ class ArtistsViewHolder private constructor(
                     true
                 }
 
-                MotionEvent.ACTION_MOVE -> {
+                MotionEvent.ACTION_CANCEL -> {
                     view.scaleX = 1f
                     view.scaleY = 1f
                     view.alpha = 1f
@@ -420,24 +420,53 @@ class FavoriteTracksViewHolder private constructor(
             }
         })
 
-        binding.favoriteIcon.setOnClickListener {
-            val bindingDialog = DialogRemoveFavoriteTrackBinding.inflate(LayoutInflater.from(it.context))
-            val builder = AlertDialog.Builder(it.context, R.style.CustomAlertDialog)
-            builder.setView(bindingDialog.root)
+        binding.favoriteIcon.apply {
+            setOnClickListener {
+                val bindingDialog = DialogRemoveFavoriteTrackBinding.inflate(LayoutInflater.from(it.context))
+                val builder = AlertDialog.Builder(it.context, R.style.CustomAlertDialog)
+                builder.setView(bindingDialog.root)
 
-            val mAlertDialog = builder.show()
+                val mAlertDialog = builder.show()
 
-            bindingDialog.trackName.text = data.name
+                bindingDialog.trackName.text = data.name
 
-            bindingDialog.delete.setOnClickListener {
-                favoritesModel.deleteTrack(data.id)
-                favoritesModel.setFavorite(isFavorite = false, data.id)
-                favoritesModel.setFavorite(isFavorite = true)
-                mAlertDialog.dismiss()
+                bindingDialog.delete.setOnClickListener {
+                    if(data.id == playerModel.track.value?.id) {
+                        favoritesModel.setFavorite(false)
+                    } else {
+                        favoritesModel.deleteTrack(data.id)
+                    }
+                    mAlertDialog.dismiss()
+                }
+
+                bindingDialog.cancel.setOnClickListener {
+                    mAlertDialog.dismiss()
+                }
             }
 
-            bindingDialog.cancel.setOnClickListener {
-                mAlertDialog.dismiss()
+            setOnTouchListener { view, event ->
+                when(event.action) {
+                    MotionEvent.ACTION_DOWN -> {
+                        view.scaleX = 0.98f
+                        view.scaleY = 0.98f
+                        true
+                    }
+
+                    MotionEvent.ACTION_UP -> {
+                        view.performClick()
+                        view.scaleX = 1f
+                        view.scaleY = 1f
+                        true
+                    }
+
+                    MotionEvent.ACTION_CANCEL -> {
+                        view.scaleX = 1f
+                        view.scaleY = 1f
+                        true
+                    }
+
+                    else -> false
+                }
             }
         }
 
@@ -456,7 +485,7 @@ class FavoriteTracksViewHolder private constructor(
                     true
                 }
 
-                MotionEvent.ACTION_MOVE -> {
+                MotionEvent.ACTION_CANCEL -> {
                     view.scaleX = 1f
                     view.scaleY = 1f
                     true

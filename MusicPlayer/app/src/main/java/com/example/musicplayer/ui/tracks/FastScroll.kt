@@ -32,7 +32,7 @@ class FastScrollView @JvmOverloads constructor(
     private val thumbAnim: SpringAnimation
 
     private var mRecycler: RecyclerView? = null
-    private var mGetItem: ((Int) -> Char)? = null
+    private var mGetItem: ((Int) -> Char?)? = null
 
     private data class Indicator(val char: Char, val pos: Int)
 
@@ -54,11 +54,11 @@ class FastScrollView @JvmOverloads constructor(
             }
         }
 
-        binding.scrollThumb.visibility = View.VISIBLE
+        binding.scrollThumb.visibility = View.GONE
 
     }
 
-    fun setup(recycler: RecyclerView, getItem: (Int) -> Char) {
+    fun setup(recycler: RecyclerView, getItem: (Int) -> Char?) {
         check(mRecycler == null) {}
 
         mRecycler = recycler
@@ -91,28 +91,8 @@ class FastScrollView @JvmOverloads constructor(
         val getItem = requireNotNull(mGetItem)
 
         indicators = 0.until(recycler.adapter!!.itemCount).mapNotNull { pos ->
-            Indicator(getItem(pos), pos)
+            getItem(pos)?.let { Indicator(it, pos) }
         }.distinctBy { it.char }
-
-        val textHeight = TypedValue.applyDimension(
-            TypedValue.COMPLEX_UNIT_SP, 14F, resources.displayMetrics
-        )
-
-        val maxEntries = height / textHeight
-
-        if (indicators.size > maxEntries.toInt()) {
-            val truncateInterval = ceil(indicators.size / maxEntries).toInt()
-
-            check(truncateInterval > 1) {}
-
-            indicators = indicators.filterIndexed { index, _ ->
-                index % truncateInterval == 0
-            }
-        }
-
-        binding.scrollIndicatorText.text = indicators.joinToString("\n") { indicator ->
-            indicator.char.toString()
-        }
     }
 
     @Suppress("ClickableViewAccessibility")
@@ -123,6 +103,7 @@ class FastScrollView @JvmOverloads constructor(
         val success = handleTouch(event.action, event.x.roundToInt(), event.y.roundToInt())
 
         binding.scrollThumb.isActivated = success
+        binding.scrollThumb.visibility = View.VISIBLE
         binding.scrollIndicatorText.isPressed = success
 
         return success
@@ -171,11 +152,6 @@ class FastScrollView @JvmOverloads constructor(
             }
 
             binding.scrollThumbText.text = indicator.char.toString()
-            thumbAnim.animateToFinalPosition(centerY - (binding.scrollThumb.measuredHeight / 2))
-
-            performHapticFeedback(
-                HapticFeedbackConstants.TEXT_HANDLE_MOVE
-            )
         }
     }
 

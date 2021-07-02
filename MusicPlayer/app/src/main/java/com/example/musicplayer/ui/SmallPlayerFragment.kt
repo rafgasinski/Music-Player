@@ -1,14 +1,15 @@
 package com.example.musicplayer.ui
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import com.example.musicplayer.R
 import com.example.musicplayer.databinding.FragmentSmallPlayerBinding
@@ -29,6 +30,7 @@ class SmallPlayerFragment : Fragment() {
 
     val preferencesManager = PreferencesManager.getInstance()
 
+    @SuppressLint("ClickableViewAccessibility")
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -115,13 +117,36 @@ class SmallPlayerFragment : Fragment() {
 
         binding.favoriteCheckbox.setOnClickListener{
             isFavorite = if(isFavorite){
-                favoritesModel.setFavorite(isFavorite = false, playerModel.track.value?.id)
                 binding.favoriteCheckbox.setImageResource(R.drawable.ic_heart_outline)
+                it.startAnimation(AnimationUtils.loadAnimation(context, R.anim.shake))
                 false
-            } else{
-                favoritesModel.setFavorite(isFavorite = true, playerModel.track.value?.id)
+            } else {
                 binding.favoriteCheckbox.setImageResource(R.drawable.ic_heart_filled)
+                it.startAnimation(AnimationUtils.loadAnimation(context, R.anim.scale_down))
                 true
+            }
+
+            favoritesModel.setFavorite(isFavorite)
+        }
+
+        binding.smallPlayerPlayPauseButton.setOnTouchListener { view, event ->
+            when(event.action) {
+                MotionEvent.ACTION_DOWN -> {
+                    view.scaleX = 0.98f
+                    view.scaleY = 0.98f
+                    view.alpha = 0.6f
+                    true
+                }
+
+                MotionEvent.ACTION_UP -> {
+                    view.performClick()
+                    view.scaleX = 1f
+                    view.scaleY = 1f
+                    view.alpha = 1f
+                    true
+                }
+
+                else -> false
             }
         }
 

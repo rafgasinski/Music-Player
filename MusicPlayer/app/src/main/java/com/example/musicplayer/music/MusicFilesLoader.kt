@@ -3,9 +3,7 @@ package com.example.musicplayer.music
 import android.annotation.SuppressLint
 import android.content.Context
 import android.provider.MediaStore
-import android.util.Log
 import com.example.musicplayer.R
-import com.example.musicplayer.music.MusicUtils.extractInt
 import com.example.musicplayer.music.MusicUtils.removePrefixes
 import com.example.musicplayer.music.MusicUtils.toAlbumArtURI
 import com.example.musicplayer.utils.getUriToDrawable

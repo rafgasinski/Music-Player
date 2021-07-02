@@ -185,11 +185,9 @@ class MusicService : Service(), Player.Listener, PlayerStateManager.Callback {
         }
     }
 
-    override fun onFavoriteUpdate(isFavorite: Boolean, favoriteTrackId: Long?) {
-        if(favoriteTrackId == playerManager.track?.id){
-            notification.setFavorite(this, isFavorite)
-            startForegroundOrNotify()
-        }
+    override fun onFavoriteUpdate(isFavorite: Boolean) {
+        notification.setFavorite(this, isFavorite)
+        startForegroundOrNotify()
     }
 
     override fun onLoopUpdate(loopMode: LoopMode) {
@@ -282,7 +280,7 @@ class MusicService : Service(), Player.Listener, PlayerStateManager.Callback {
                 }
 
                 PlayerNotification.ACTION_FAVORITE -> {
-                    playerManager.setFavorite(!playerManager.isFavorite, playerManager.track?.id)
+                    playerManager.setFavorite(!playerManager.isFavorite)
                 }
 
                 PlayerNotification.ACTION_SKIP_PREV -> playerManager.prev(true)

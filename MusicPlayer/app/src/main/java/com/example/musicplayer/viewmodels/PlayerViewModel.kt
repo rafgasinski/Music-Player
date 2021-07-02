@@ -49,17 +49,17 @@ class PlayerViewModel : ViewModel(), PlayerStateManager.Callback {
         if (mTrack.value != null) it.toInt() else 0
     }
 
-    private val playbackManager = PlayerStateManager.getInstance()
+    private val playerManager = PlayerStateManager.getInstance()
     private val musicStore = MusicStore.getInstance()
     private val preferencesManager = PreferencesManager.getInstance()
 
     init {
-        playbackManager.addCallback(this)
+        playerManager.addCallback(this)
     }
 
     fun playTrack(track: Track, mode: Int) {
         preferencesManager.queueConstructorMode = mode
-        playbackManager.playTrack(track, QueueConstructor.fromInt(mode)!!)
+        playerManager.playTrack(track, QueueConstructor.fromInt(mode)!!)
     }
 
 
@@ -69,7 +69,7 @@ class PlayerViewModel : ViewModel(), PlayerStateManager.Callback {
         }
 
         preferencesManager.queueConstructorMode = QueueConstructor.IN_ALBUM.toInt()
-        playbackManager.playParent(album, shuffled)
+        playerManager.playParent(album, shuffled)
     }
 
     fun playArtist(artist: Artist, shuffled: Boolean) {
@@ -77,7 +77,7 @@ class PlayerViewModel : ViewModel(), PlayerStateManager.Callback {
             return
         }
 
-        playbackManager.playParent(artist, shuffled)
+        playerManager.playParent(artist, shuffled)
     }
 
     fun playWithUri(uri: Uri, context: Context) {
@@ -95,15 +95,15 @@ class PlayerViewModel : ViewModel(), PlayerStateManager.Callback {
     }
 
     fun shuffleAll() {
-        playbackManager.shuffleAll()
+        playerManager.shuffleAll()
     }
 
     fun playFavorites(shuffled: Boolean) {
-        playbackManager.playFavorites(shuffled)
+        playerManager.playFavorites(shuffled)
     }
 
     fun setPosition(progress: Int) {
-        playbackManager.seekTo((progress * 1000).toLong())
+        playerManager.seekTo((progress * 1000).toLong())
     }
 
     fun updatePositionDisplay(progress: Int) {
@@ -111,23 +111,23 @@ class PlayerViewModel : ViewModel(), PlayerStateManager.Callback {
     }
 
     fun skipNext() {
-        playbackManager.next()
+        playerManager.next()
     }
 
     fun skipPrev(doRewind : Boolean) {
-        playbackManager.prev(doRewind)
+        playerManager.prev(doRewind)
     }
 
     fun invertPlayingStatus() {
-        playbackManager.setPlaying(!playbackManager.isPlaying)
+        playerManager.setPlaying(!playerManager.isPlaying)
     }
 
     fun invertShuffleStatus() {
-        playbackManager.setShuffling(!playbackManager.isShuffling, keepSong = true)
+        playerManager.setShuffling(!playerManager.isShuffling, keepSong = true)
     }
 
     fun incrementLoopStatus() {
-        playbackManager.setLoopMode(playbackManager.loopMode.increment())
+        playerManager.setLoopMode(playerManager.loopMode.increment())
     }
 
     fun setSeekingStatus(isSeeking: Boolean) {
@@ -135,15 +135,15 @@ class PlayerViewModel : ViewModel(), PlayerStateManager.Callback {
     }
 
     override fun onCleared() {
-        playbackManager.removeCallback(this)
+        playerManager.removeCallback(this)
     }
 
     override fun onTrackUpdate(track: Track?) {
         mTrack.value = track
         track?.let {
             mCurrentPlayingAlbum.value = track.album
+            setFavorite(it)
         }
-        setFavorite()
     }
 
     override fun onParentUpdate(parent: Parent?) {
@@ -180,7 +180,7 @@ class PlayerViewModel : ViewModel(), PlayerStateManager.Callback {
         mLoopMode.value = loopMode
     }
 
-    private fun setFavorite() {
-        playbackManager.setFavorite(musicStore.favoriteTracks.any { it.id == mTrack.value?.id }, mTrack.value?.id)
+    private fun setFavorite(track: Track) {
+        playerManager.setFavorite(musicStore.favoriteTracks.any { it.id == track.id })
     }
 }

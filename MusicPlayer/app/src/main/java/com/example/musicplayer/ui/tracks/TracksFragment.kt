@@ -11,6 +11,7 @@ import com.example.musicplayer.adapters.TracksAdapter
 import com.example.musicplayer.databinding.FragmentTracksBinding
 import com.example.musicplayer.music.MusicStore
 import com.example.musicplayer.player.state.QueueConstructor
+import com.example.musicplayer.utils.isOnlyInAZ
 import com.example.musicplayer.viewmodels.PlayerViewModel
 
 class TracksFragment : Fragment() {
@@ -87,7 +88,15 @@ class TracksFragment : Fragment() {
 
         binding.fastScroll.setup(binding.tracksRecyclerView) { pos ->
             val char = musicStore.tracks[pos].name.first
-            if (char.isDigit()) '#' else char
+            if (char.isDigit()) {
+                '#'
+            } else {
+                if(isOnlyInAZ(char.toString())){
+                    char
+                } else {
+                    null
+                }
+            }
         }
 
         return binding.root

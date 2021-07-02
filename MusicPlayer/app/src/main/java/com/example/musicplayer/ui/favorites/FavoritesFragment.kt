@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AnimationUtils
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
@@ -131,6 +132,8 @@ class FavoritesFragment : Fragment() {
             layoutManager = GridLayoutManager(requireContext(), 2)
             setPadding((6 * scale + 0.5f).toInt(), (14 * scale + 0.5f).toInt(), (6 * scale + 0.5f).toInt(), 0)
         }
+
+        binding.toolbar.menu.getItem(0).icon = ContextCompat.getDrawable(requireContext(), R.drawable.ic_list_view)
     }
 
     private fun setToLinear(animate : Boolean) {
@@ -146,6 +149,8 @@ class FavoritesFragment : Fragment() {
             layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
             setPadding(0, (8 * scale + 0.5f).toInt(), 0, (8 * scale + 0.5f).toInt())
         }
+
+        binding.toolbar.menu.getItem(0).icon = ContextCompat.getDrawable(requireContext(), R.drawable.ic_grid_view)
     }
 
     private fun navToClickedItem(album: Album) {

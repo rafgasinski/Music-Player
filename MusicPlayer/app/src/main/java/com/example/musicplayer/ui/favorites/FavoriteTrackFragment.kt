@@ -75,32 +75,38 @@ class FavoriteTrackFragment : Fragment() {
             }
         })
 
-        binding.appBarLayout.addOnOffsetChangedListener(OnOffsetChangedListener { appBarLayout, verticalOffset ->
-            if(abs(verticalOffset) - appBarLayout.totalScrollRange == 0){
-                binding.toolbarTitle.alpha = 1f
-                binding.toolbar.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.aboveBackground))
-            } else {
-                binding.toolbarTitle.alpha = 0f
-                binding.toolbar.background = null
+        binding.appBarLayout.apply {
+            background = GradientDrawable(
+                GradientDrawable.Orientation.TOP_BOTTOM, intArrayOf(
+                    ResourcesCompat.getColor(resources, R.color.accent, null),
+                    manipulateColor(ResourcesCompat.getColor(resources, R.color.accent, null), 0.6f),
+                    ResourcesCompat.getColor(resources, R.color.background, null)))
 
-                val offsetFactor = (abs(verticalOffset).toFloat() / appBarLayout.totalScrollRange.toFloat())
-                val scaleFactor = 1f - offsetFactor * 0.5f
-                binding.favoriteTracks.scaleX = scaleFactor
-                binding.favoriteTracks.scaleY = scaleFactor
-                if(scaleFactor < 0.8f) {
-                    binding.favoriteTracks.alpha = scaleFactor + 0.2f
+            addOnOffsetChangedListener(OnOffsetChangedListener { appBarLayout, verticalOffset ->
+                if(abs(verticalOffset) - appBarLayout.totalScrollRange == 0){
+                    binding.toolbarTitle.alpha = 1f
+                    binding.toolbar.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.aboveBackground))
+                } else if(abs(verticalOffset) == 0) {
+                    binding.favoriteTracks.scaleX = 1f
+                    binding.favoriteTracks.scaleY = 1f
+                    binding.favoriteTracks.alpha = 1f
+                } else {
+                    binding.toolbarTitle.alpha = 0f
+                    binding.toolbar.background = null
+
+                    val offsetFactor = (abs(verticalOffset).toFloat() / appBarLayout.totalScrollRange.toFloat())
+                    val scaleFactor = 1f - offsetFactor * 0.5f
+                    binding.favoriteTracks.scaleX = scaleFactor
+                    binding.favoriteTracks.scaleY = scaleFactor
+                    if(scaleFactor < 0.8f) {
+                        binding.favoriteTracks.alpha = scaleFactor + 0.2f
+                    }
+
+                    binding.toolbarTitle.alpha = 0f
+                    binding.toolbar.background = null
                 }
-
-                binding.toolbarTitle.alpha = 0f
-                binding.toolbar.background = null
-            }
-        })
-
-        binding.appBarLayout.background = GradientDrawable(
-            GradientDrawable.Orientation.TOP_BOTTOM, intArrayOf(
-            ResourcesCompat.getColor(resources, R.color.accent, null),
-            manipulateColor(ResourcesCompat.getColor(resources, R.color.accent, null), 0.6f),
-            ResourcesCompat.getColor(resources, R.color.background, null)))
+            })
+        }
 
         return binding.root
     }

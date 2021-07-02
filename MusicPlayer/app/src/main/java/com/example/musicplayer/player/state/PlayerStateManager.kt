@@ -46,12 +46,10 @@ class PlayerStateManager private constructor() {
             callbacks.forEach { it.onPlayingUpdate(value) }
         }
 
-    private var mFavoriteId: Long? = null
-
     private var mIsFavorite = false
         set(value) {
             field = value
-            callbacks.forEach { it.onFavoriteUpdate(value, mFavoriteId) }
+            callbacks.forEach { it.onFavoriteUpdate(value) }
         }
 
     private var mIsShuffling = false
@@ -266,9 +264,7 @@ class PlayerStateManager private constructor() {
         }
     }
 
-    fun setFavorite(favorite: Boolean, favoriteTrackId: Long?)  {
-        mFavoriteId = favoriteTrackId
-
+    fun setFavorite(favorite: Boolean)  {
         if (mIsFavorite != favorite) {
             mIsFavorite = favorite
         }
@@ -309,7 +305,7 @@ class PlayerStateManager private constructor() {
         fun onModeUpdate(mode: QueueConstructor) {}
         fun onIndexUpdate(index: Int) {}
         fun onPlayingUpdate(isPlaying: Boolean) {}
-        fun onFavoriteUpdate(isFavorite: Boolean, trackId: Long? = null) {}
+        fun onFavoriteUpdate(isFavorite: Boolean) {}
         fun onShuffleUpdate(isShuffling: Boolean) {}
         fun onLoopUpdate(loopMode: LoopMode) {}
         fun onSeek(position: Long) {}

@@ -76,3 +76,8 @@ fun getUriToDrawable(
                 + '/' + context.resources.getResourceEntryName(drawableId)
     )
 }
+
+fun isOnlyInAZ(string: String): Boolean {
+    val regex = "^[a-zA-Z]*$".toRegex()
+    return regex.matches(string)
+}
